@@ -258,14 +258,17 @@
     }
   }
 
-  // === NAVIGATION BASSE ===
+   // === NAVIGATION BASSE (Comme une vraie app) ===
   function showTab(tab, btn) {
+    // 1. Changer le bouton actif en bas
     document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    document.getElementById('tab-passager').style.display = (tab === 'passager') ? 'block' : 'none';
-    document.getElementById('tab-chauffeur').style.display = (tab === 'chauffeur') ? 'block' : 'none';
-    document.getElementById('tab-profil').style.display = (tab === 'profil') ? 'block' : 'none';
+    // 2. Cacher TOUT le contenu de l'application
+    document.querySelectorAll('.screen-content').forEach(s => s.style.display = 'none');
+
+    // 3. Afficher uniquement l'écran demandé
+    document.getElementById('screen-' + tab).style.display = 'block';
   }
 
   // === LANCEMENT ===
