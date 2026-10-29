@@ -309,4 +309,316 @@
         <div style="font-size: 50px; margin-bottom: 10px;">🚗</div>
         <h2 style="font-size:20px; color:#22d3ee; margin-bottom:5px;">Chauffeur en route !</h2>
         <p style="color:#8b8b9e; font-size:13px; margin-bottom:20px;">Il arrive dans <strong id="arrival-time">3</strong> min</p>
-        <div class="driver-card-live" style="background:#16161f; border:1px
+        <div class="driver-card-live" style="background:#16161f; border:1px solid #26263a; border-radius:12px; padding:15px; display:flex; align-items:center; gap:15px; text-align:left; margin-bottom:15px;">
+          <div style="width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#ffd166,#ff9f1c); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:20px; color:#1a1a2e;">KM</div>
+          <div><strong style="display:block; font-size:15px;">Karim M.</strong><span style="font-size:12px; color:#8b8b9e;">Peugeot 308 · AB-123-CD</span><br><span style="font-size:12px; color:#ffd166;">★ 4.9 (1240 courses)</span></div>
+        </div>
+      </div>
+      <div class="trip-card" style="margin-top:20px; text-align:left;">
+        <p style="font-size:14px; color:#fff; margin-bottom:5px;">Votre trajet :</p>
+        <p id="recap-trajet" style="font-size:13px; color:#8b8b9e; margin-bottom:15px;"></p>
+        <p style="font-size:14px; color:#22d3ee; font-weight:700; margin-bottom:15px;">Prix : <span id="recap-prix"></span></p>
+        <div class="security-actions">
+          <button class="sec-btn" onclick="alert('🚨 Bouton d\'urgence activé.')">🚨 SOS</button>
+          <button class="sec-btn share" onclick="alert('🔗 Lien de partage copié !')">🔗 Partager</button>
+          <button class="sec-btn call" onclick="alert('📞 Appel masqué en cours...')">📞 Appeler</button>
+        </div>
+        <div class="security-actions" style="margin-top:10px;">
+          <button class="sec-btn audio" onclick="alert('🎙️ Enregistrement audio activé.')">🎙️ Enregistrer l'audio</button>
+        </div>
+        <div class="ai-bubble" id="ai-bubble"><strong>🤖 Assistant RunLine :</strong> Votre chauffeur arrive dans 3 min. Il est en Peugeot 308 grise.</div>
+        <button class="btn btn-outline" style="margin-top:20px;" onclick="annulerRecherche()">Annuler la course</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="payment-overlay" id="payment-modal">
+    <div class="sheet">
+      <h3>💳 Choisir le mode de paiement</h3>
+      <div class="pay-method active" onclick="selectPay(this, 'cb')"><span class="icon">💳</span><span class="name">Carte bancaire</span><div class="check"></div></div>
+      <div class="pay-method" onclick="selectPay(this, 'cash')"><span class="icon">💶</span><span class="name">Espèces</span><div class="check"></div></div>
+      <div class="pay-method" onclick="selectPay(this, 'paypal')"><span class="icon">🅿️</span><span class="name">PayPal</span><div class="check"></div></div>
+      <button class="btn btn-primary" style="margin-top: 20px;" onclick="confirmPayment()">Confirmer et payer</button>
+      <button class="btn btn-outline" onclick="closePaymentModal()">Annuler</button>
+    </div>
+  </div>
+
+  <div class="support-overlay" id="support-modal">
+    <div class="sheet">
+      <h3>💬 Aide & Support</h3>
+      <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question">Comment annuler une course ? <span>▼</span></div><div class="faq-answer">Vous pouvez annuler gratuitement tant que le chauffeur n'est pas arrivé.</div></div>
+      <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question">Comment fonctionne le paiement ? <span>▼</span></div><div class="faq-answer">Le paiement est sécurisé. Vous pouvez payer par carte, PayPal ou espèces.</div></div>
+      <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question">Que faire si j'ai oublié un objet ? <span>▼</span></div><div class="faq-answer">Contactez le support 24/7 via le bouton "Appeler" de votre course.</div></div>
+      <button class="btn btn-outline" style="margin-top:20px;" onclick="closeSupportModal()">Fermer</button>
+    </div>
+  </div>
+
+  <div class="notif-overlay" id="notif-modal">
+    <div class="sheet">
+      <h3>🔔 Notifications</h3>
+      <div class="notif-item"><div class="icon">🚗</div><div class="content"><strong>Votre chauffeur est arrivé !</strong><span class="time">Il y a 2 minutes</span></div></div>
+      <div class="notif-item"><div class="icon">🎉</div><div class="content"><strong>Bienvenue sur RunLine !</strong><span class="time">Il y a 1 heure</span></div></div>
+      <button class="btn btn-outline" style="margin-top:20px;" onclick="closeNotifModal()">Fermer</button>
+    </div>
+  </div>
+
+  <div class="promo-overlay" id="payment-settings-modal">
+    <div class="sheet">
+      <h3>💳 Mes moyens de paiement</h3>
+      <div class="pay-method active"><span class="icon">💳</span><span class="name">Visa **** 4242</span><div class="check"></div></div>
+      <button class="btn btn-outline" style="margin-top:15px; justify-content:center;">+ Ajouter une carte</button>
+      <button class="btn btn-outline" style="margin-top:10px;" onclick="closePaymentSettings()">Fermer</button>
+    </div>
+  </div>
+
+  <div class="promo-overlay" id="promo-modal">
+    <div class="sheet">
+      <h3>🎁 Inviter un ami</h3>
+      <p style="text-align:center; color:#8b8b9e; margin-bottom:15px; font-size:13px;">Partagez votre code et gagnez 5€ de crédit !</p>
+      <div class="input-group" style="text-align:center; font-size:20px; font-weight:900; letter-spacing:2px; color:#ffd166;">RUNLINE2026</div>
+      <button class="btn btn-primary" onclick="alert('Code copié !')">Copier le code</button>
+      <button class="btn btn-outline" style="margin-top:10px;" onclick="closePromoModal()">Fermer</button>
+    </div>
+  </div>
+
+  <div class="bottom-nav" id="bottom-nav">
+    <button class="active" id="nav-passager" onclick="showTab('passager', this)"><span>🚗</span>Passager</button>
+    <button id="nav-chauffeur" onclick="showTab('chauffeur', this)"><span>🛡️</span>Chauffeur</button>
+    <button onclick="showTab('historique', this)"><span>🧾</span>Courses</button>
+    <button onclick="showTab('profil', this)"><span>👤</span>Profil</button>
+  </div>
+
+  <div class="footer" id="main-footer">
+    <p>© 2026 RunLine. Tous droits réservés.</p>
+    <div class="links"><a href="#">Mentions légales</a><a href="#">Politique de confidentialité</a><a href="#">CGU</a></div>
+    <div class="secure-tag">🔒 Paiement sécurisé · Données chiffrées AES-256</div>
+  </div>
+</div>
+
+<script>
+  const supabaseUrl = "https://magtyeybfufywqbevaux.supabase.co";
+  const supabaseKey = "sb_publishable_543lDfIDZ-lpsP6w9xiO8A_2BRveCmE";
+  const client = supabase.createClient(supabaseUrl, supabaseKey);
+
+  let map, routingLayer, departMarker, arriveeMarker;
+  let selectedPaymentMethod = 'cb', selectedRole = 'passager';
+  let currentDate = new Date(), selectedDate = new Date(), selectedTime = "Maintenant", isCalendarOpen = false;
+  let searchInterval, countdownInterval;
+
+  function initMap() {
+    map = L.map('map-container', { zoomControl: false }).setView([46.603354, 1.888334], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap', maxZoom: 19 }).addTo(map);
+    L.control.zoom({ position: 'topright' }).addTo(map);
+  }
+
+  function selectRole(role) {
+    selectedRole = role;
+    document.getElementById('role-passager').classList.remove('active');
+    document.getElementById('role-chauffeur').classList.remove('active');
+    if(role === 'passager') document.getElementById('role-passager').classList.add('active');
+    else document.getElementById('role-chauffeur').classList.add('active');
+  }
+
+  async function checkAuth() {
+    const { data: { session } } = await client.auth.getSession();
+    if (session) {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'block';
+      document.getElementById('bottom-nav').style.display = 'flex';
+      document.getElementById('main-footer').style.display = 'block';
+      document.getElementById('user-email').innerText = session.user.email;
+      document.getElementById('nav-chauffeur').style.display = 'flex';
+      setTimeout(initMap, 100);
+      renderCalendar();
+      document.getElementById('notif-dot').style.display = 'block';
+    } else {
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('app-screen').style.display = 'none';
+      document.getElementById('bottom-nav').style.display = 'none';
+      document.getElementById('main-footer').style.display = 'none';
+    }
+  }
+
+  function toggleAuth(form) {
+    document.getElementById('login-form').style.display = (form === 'login') ? 'block' : 'none';
+    document.getElementById('signup-form').style.display = (form === 'signup') ? 'block' : 'none';
+  }
+
+  async function signInWithGoogle() {
+    const { error } = await client.auth.signInWithOAuth({ provider: 'google' });
+    if (error) alert(error.message);
+  }
+
+  async function signUp() {
+    const email = document.getElementById('signupEmail').value, password = document.getElementById('signupPassword').value, name = document.getElementById('signupName').value;
+    if(!email || !password) return alert("Remplissez tout");
+    const { error } = await client.auth.signUp({ email, password, options: { data: { full_name: name, role: selectedRole } } });
+    if (error) alert("Erreur : " + error.message);
+    else alert("Compte créé ! Vérifiez vos mails.");
+  }
+
+  async function signIn() {
+    const email = document.getElementById('loginEmail').value, password = document.getElementById('loginPassword').value;
+    const { error } = await client.auth.signInWithPassword({ email, password });
+    if (error) alert("Erreur : " + error.message);
+    else checkAuth();
+  }
+
+  async function signOut() {
+    await client.auth.signOut();
+    document.getElementById('map-container').style.display = 'none';
+    checkAuth();
+  }
+
+  function toggleCalendar() {
+    isCalendarOpen = !isCalendarOpen;
+    document.getElementById('calendar-wrapper').style.display = isCalendarOpen ? 'block' : 'none';
+    if(isCalendarOpen) renderCalendar();
+  }
+
+  function updateCalendarButtonText() {
+    document.getElementById('calendar-btn-text').innerText = `${selectedDate.toLocaleDateString('fr-FR')} à ${selectedTime}`;
+  }
+
+  function renderCalendar() {
+    updateCalendarButtonText();
+    const grid = document.getElementById('calendar-grid'), monthLabel = document.getElementById('month-label');
+    if(!grid) return;
+    grid.innerHTML = '';
+    const year = currentDate.getFullYear(), month = currentDate.getMonth();
+    const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+    monthLabel.innerText = `${monthNames[month]} ${year}`;
+    const firstDay = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month + 1, 0).getDate();
+    for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) { const empty = document.createElement('div'); empty.className = 'cal-day empty'; grid.appendChild(empty); }
+    for (let i = 1; i <= daysInMonth; i++) {
+        const day = document.createElement('div'); day.className = 'cal-day'; day.innerText = i;
+        if (selectedDate.getDate() === i && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) day.classList.add('active');
+        const today = new Date(); today.setHours(0,0,0,0); const thisDate = new Date(year, month, i);
+        if (thisDate < today) { day.style.opacity = '0.3'; day.style.cursor = 'not-allowed'; }
+        else { day.onclick = () => { selectedDate = new Date(year, month, i); renderCalendar(); }; }
+        grid.appendChild(day);
+    }
+  }
+
+  function changeMonth(direction) { currentDate.setMonth(currentDate.getMonth() + direction); renderCalendar(); }
+
+  async function calcRoute() {
+    const depart = document.getElementById('depart').value, arrivee = document.getElementById('arrivee').value, btn = document.getElementById('btn-calc'), typeVehicule = document.getElementById('type-vehicule').value;
+    if(!depart || !arrivee) return;
+    btn.innerHTML = 'Estimation... <div class="spinner"></div>'; btn.disabled = true;
+    try {
+        const geoDepart = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${depart}`).then(r => r.json());
+        const geoArrivee = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${arrivee}`).then(r => r.json());
+        if(geoDepart.length === 0 || geoArrivee.length === 0) throw new Error("Ville introuvable");
+        const lat1 = geoDepart[0].lat, lon1 = geoDepart[0].lon, lat2 = geoArrivee[0].lat, lon2 = geoArrivee[0].lon;
+        const route = await fetch(`https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`).then(r => r.json());
+        if(route.code !== 'Ok') throw new Error("Erreur de trajet");
+        const distanceKm = route.routes[0].distance / 1000, dureeMin = route.routes[0].duration / 60;
+        let multiplier = typeVehicule === 'van' ? 1.5 : 1.0;
+        const total = (1.50 * multiplier) + (distanceKm * (1.00 * multiplier)) + (dureeMin * (0.15 * multiplier));
+        const chauffeur = total - 1.00;
+        document.getElementById('res-km').innerText = distanceKm.toFixed(1) + " km";
+        document.getElementById('res-min').innerText = Math.round(dureeMin) + " min";
+        document.getElementById('res-total').innerText = total.toFixed(2).replace('.', ',') + '€';
+        document.getElementById('res-chauffeur').innerText = chauffeur.toFixed(2).replace('.', ',') + '€';
+        document.getElementById('result-box').style.display = 'block';
+        document.getElementById('btn-commander').style.display = 'block';
+        document.getElementById('map-container').style.display = 'block';
+        setTimeout(() => map.invalidateSize(), 100);
+        if (routingLayer) map.removeLayer(routingLayer);
+        if (departMarker) map.removeLayer(departMarker);
+        if (arriveeMarker) map.removeLayer(arriveeMarker);
+        const departIcon = L.divIcon({ className: 'custom-pin pin-depart', html: 'D', iconSize: [30, 30], iconAnchor: [15, 15] });
+        departMarker = L.marker([lat1, lon1], { icon: departIcon }).addTo(map);
+        const arriveeIcon = L.divIcon({ className: 'custom-pin pin-arrivee', html: 'A', iconSize: [30, 30], iconAnchor: [15, 15] });
+        arriveeMarker = L.marker([lat2, lon2], { icon: arriveeIcon }).addTo(map);
+        routingLayer = L.geoJSON(route.routes[0].geometry, { style: { color: '#ffd166', weight: 6, opacity: 1 } }).addTo(map);
+        map.fitBounds(routingLayer.getBounds(), { padding: [30, 30], maxZoom: 12 });
+    } catch (error) {
+        console.error(error);
+        document.getElementById('result-box').style.display = 'none'; document.getElementById('btn-commander').style.display = 'none'; document.getElementById('map-container').style.display = 'none';
+    } finally { btn.innerHTML = 'Estimer le prix'; btn.disabled = false; }
+  }
+
+  function setFav(dest, depart) { document.getElementById('arrivee').value = dest; document.getElementById('depart').value = depart; calcRoute(); }
+  function openPaymentModal() { document.getElementById('payment-modal').style.display = 'flex'; }
+  function closePaymentModal() { document.getElementById('payment-modal').style.display = 'none'; }
+  function selectPay(element, method) { document.querySelectorAll('.pay-method').forEach(el => el.classList.remove('active')); element.classList.add('active'); selectedPaymentMethod = method; }
+  function confirmPayment() { closePaymentModal(); startSearch(); }
+  
+  function openSupportModal() { document.getElementById('support-modal').style.display = 'flex'; }
+  function closeSupportModal() { document.getElementById('support-modal').style.display = 'none'; }
+  function openNotifModal() { document.getElementById('notif-modal').style.display = 'flex'; document.getElementById('notif-dot').style.display = 'none'; }
+  function closeNotifModal() { document.getElementById('notif-modal').style.display = 'none'; }
+  function openPaymentSettings() { document.getElementById('payment-settings-modal').style.display = 'flex'; }
+  function closePaymentSettings() { document.getElementById('payment-settings-modal').style.display = 'none'; }
+  function openPromoModal() { document.getElementById('promo-modal').style.display = 'flex'; }
+  function closePromoModal() { document.getElementById('promo-modal').style.display = 'none'; }
+
+  function startSearch() {
+    const depart = document.getElementById('depart').value, arrivee = document.getElementById('arrivee').value, prix = document.getElementById('res-total').innerText, dateStr = selectedDate.toLocaleDateString('fr-FR');
+    document.getElementById('recap-trajet').innerText = `${depart} ➔ ${arrivee} (${dateStr} à ${selectedTime})`;
+    document.getElementById('recap-prix').innerText = prix;
+    showTab('recherche', document.querySelector('.bottom-nav button.active')); 
+    document.getElementById('screen-passager').style.display = 'none';
+    document.getElementById('screen-recherche').style.display = 'block';
+    document.getElementById('search-view').style.display = 'block';
+    document.getElementById('driver-found-view').style.display = 'none';
+    let searchCount = 0;
+    searchInterval = setInterval(() => {
+        searchCount++;
+        if (searchCount === 3) {
+            document.getElementById('search-view').style.display = 'none';
+            document.getElementById('driver-found-view').style.display = 'block';
+            document.getElementById('ai-bubble').classList.add('show');
+            let timeLeft = 3; document.getElementById('arrival-time').innerText = timeLeft;
+            countdownInterval = setInterval(() => { timeLeft--; if (timeLeft >= 0) document.getElementById('arrival-time').innerText = timeLeft; else clearInterval(countdownInterval); }, 4000);
+            clearInterval(searchInterval);
+        }
+    }, 1000);
+  }
+
+  function annulerRecherche() {
+    clearInterval(searchInterval); clearInterval(countdownInterval);
+    document.getElementById('ai-bubble').classList.remove('show');
+    document.getElementById('screen-recherche').style.display = 'none';
+    document.getElementById('screen-passager').style.display = 'block';
+    document.getElementById('map-container').style.display = 'none';
+  }
+
+  function showTab(tab, btn) {
+    if(btn) { document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+    document.querySelectorAll('.screen-content').forEach(s => s.style.display = 'none');
+    document.getElementById('screen-' + tab).style.display = 'block';
+    if(tab === 'passager' && map) setTimeout(() => map.invalidateSize(), 100);
+  }
+
+  function toggleStatus() {
+    const btn = document.getElementById('status-btn');
+    if (btn.classList.contains('offline')) { btn.classList.remove('offline'); btn.classList.add('online'); btn.innerText = "En ligne"; }
+    else { btn.classList.remove('online'); btn.classList.add('offline'); btn.innerText = "Hors ligne"; }
+  }
+
+  async function upload(input, name) {
+    const file = input.files[0];
+    if (!file) return;
+    const { data: { user } } = await client.auth.getUser();
+    if (!user) return alert("Connectez-vous d'abord !");
+    const statusSpan = document.getElementById('status-' + name.toLowerCase().replace(' ', '')), iconSpan = document.getElementById('s' + (name === 'Permis' ? '1' : name === 'VTC' ? '2' : '3'));
+    if(statusSpan) statusSpan.innerText = "Envoi en cours..."; if(iconSpan) iconSpan.innerText = "⏳";
+    const fileName = user.id + "/" + name + "-" + Date.now();
+    const { error } = await client.storage.from('documents').upload(fileName, file);
+    if (error) {
+      alert("Erreur : " + error.message);
+      if(statusSpan) statusSpan.innerText = "Erreur"; if(iconSpan) iconSpan.innerText = "❌";
+    } else {
+      if(statusSpan) statusSpan.innerText = "Envoyé !"; if(iconSpan) { iconSpan.innerText = "✅"; iconSpan.style.color = "#22d3ee"; }
+      alert("Document envoyé !");
+    }
+  }
+
+  checkAuth();
+  client.auth.onAuthStateChange(() => checkAuth());
+</script>
+</body>
+</html>
