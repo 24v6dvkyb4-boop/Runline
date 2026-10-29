@@ -42,7 +42,7 @@
   .header .logo{font-size:22px;font-weight:900;letter-spacing:-1px}
   .header .logo span{background:linear-gradient(135deg,#ffd166,#ff9f1c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   
-  /* CARTE (Cachée par défaut) */
+  /* CARTE (MODE SOMBRE) */
   #map-container{height:220px;border-radius:20px;border:1px solid #26263a;margin-bottom:20px;overflow:hidden;position:relative;z-index:1; background:#16161f; display:none;}
   .leaflet-layer { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
   
@@ -230,12 +230,10 @@
           </select>
         </div>
 
-        <!-- BOUTON QUAND (Fermé par défaut) -->
         <button class="btn btn-outline" style="margin-bottom:15px;" onclick="toggleCalendar()">
           📅 <span id="calendar-btn-text">Choisir une date et une heure</span>
         </button>
 
-        <!-- CALENDRIER (Caché par défaut) -->
         <div id="calendar-wrapper" style="display:none; margin-bottom:15px;">
           <div class="calendar-box">
             <div class="calendar-header">
@@ -389,10 +387,26 @@
     
     <!-- RECHERCHE / COURSE EN COURS -->
     <div class="screen-content" id="screen-recherche">
-      <div style="text-align:center; padding-top: 20px;">
+      <div id="search-view" style="text-align:center; padding-top: 20px;">
         <div class="spinner" style="width: 40px; height: 40px; border-width: 4px; border-top-color: #ffd166; margin: 0 auto 20px;"></div>
         <h2 style="font-size:20px; margin-bottom:10px;">Recherche d'un chauffeur...</h2>
         <p style="color:#8b8b9e; font-size:13px;">Veuillez patienter.</p>
+      </div>
+
+      <!-- VUE CHAUFFEUR TROUVÉ -->
+      <div id="driver-found-view" style="display:none; text-align:center; padding-top: 10px;">
+        <div style="font-size: 50px; margin-bottom: 10px;">🚗</div>
+        <h2 style="font-size:20px; color:#22d3ee; margin-bottom:5px;">Chauffeur en route !</h2>
+        <p style="color:#8b8b9e; font-size:13px; margin-bottom:20px;">Il arrive dans <strong id="arrival-time">3</strong> min</p>
+        
+        <div class="driver-card-live" style="background:#16161f; border:1px solid #26263a; border-radius:12px; padding:15px; display:flex; align-items:center; gap:15px; text-align:left; margin-bottom:15px;">
+          <div style="width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#ffd166,#ff9f1c); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:20px; color:#1a1a2e;">KM</div>
+          <div>
+            <strong style="display:block; font-size:15px;">Karim M.</strong>
+            <span style="font-size:12px; color:#8b8b9e;">Peugeot 308 · AB-123-CD</span><br>
+            <span style="font-size:12px; color:#ffd166;">★ 4.9 (1240 courses)</span>
+          </div>
+        </div>
       </div>
 
       <div class="trip-card" style="margin-top:20px; text-align:left;">
@@ -451,7 +465,7 @@
   <!-- NAVIGATION -->
   <div class="bottom-nav" id="bottom-nav">
     <button class="active" id="nav-passager" onclick="showTab('passager', this)"><span>🚗</span>Passager</button>
-    <button id="nav-chauffeur" onclick="showTab('chauffeur', this)" style="display:none;"><span>🛡️</span>Chauffeur</button>
+    <button id="nav-chauffeur" onclick="showTab('chauffeur', this)"><span>🛡️</span>Chauffeur</button>
     <button onclick="showTab('historique', this)"><span>🧾</span>Courses</button>
     <button onclick="showTab('profil', this)"><span>👤</span>Profil</button>
   </div>
@@ -466,12 +480,10 @@
 </div>
 
 <script>
-  // === CONFIGURATION SUPABASE ===
   const supabaseUrl = "https://magtyeybfufywqbevaux.supabase.co";
   const supabaseKey = "sb_publishable_543lDfIDZ-lpsP6w9xiO8A_2BRveCmE";
   const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // === VARIABLES GLOBALES ===
   let map;
   let routingLayer = null;
   let departMarker = null;
@@ -479,13 +491,12 @@
   let selectedPaymentMethod = 'cb';
   let selectedRole = 'passager';
   
-  // Calendrier
   let currentDate = new Date();
   let selectedDate = new Date();
   let selectedTime = "Maintenant";
   let isCalendarOpen = false;
+  let searchInterval;
 
-  // === INITIALISATION DE LA CARTE ===
   function initMap() {
     map = L.map('map-container', { zoomControl: false }).setView([46.603354, 1.888334], 6);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -495,7 +506,6 @@
     L.control.zoom({ position: 'topright' }).addTo(map);
   }
 
-  // === GESTION DU RÔLE ===
   function selectRole(role) {
     selectedRole = role;
     document.getElementById('role-passager').classList.remove('active');
@@ -504,7 +514,6 @@
     else document.getElementById('role-chauffeur').classList.add('active');
   }
 
-  // === AUTHENTIFICATION ===
   async function checkAuth() {
     const { data: { session } } = await client.auth.getSession();
     if (session) {
@@ -514,18 +523,9 @@
       document.getElementById('main-footer').style.display = 'block';
       document.getElementById('user-email').innerText = session.user.email;
       
-      const userRole = session.user.user_metadata.role || 'passager';
+      // On affiche l'onglet chauffeur pour tout le monde pour l'instant
+      document.getElementById('nav-chauffeur').style.display = 'flex';
       
-      if (userRole === 'chauffeur') {
-        document.getElementById('nav-chauffeur').style.display = 'flex';
-        document.getElementById('nav-passager').style.display = 'none';
-        showTab('chauffeur', document.getElementById('nav-chauffeur'));
-      } else {
-        document.getElementById('nav-chauffeur').style.display = 'none';
-        document.getElementById('nav-passager').style.display = 'flex';
-        showTab('passager', document.getElementById('nav-passager'));
-      }
-
       setTimeout(initMap, 100); 
       renderCalendar(); 
     } else {
@@ -550,15 +550,10 @@
     const email = document.getElementById('signupEmail').value;
     const password = document.getElementById('signupPassword').value;
     const name = document.getElementById('signupName').value;
-    
     if(!email || !password) return alert("Remplissez tout");
-    
     const { error } = await client.auth.signUp({ 
-        email, 
-        password,
-        options: { data: { full_name: name, role: selectedRole } }
+        email, password, options: { data: { full_name: name, role: selectedRole } }
     });
-    
     if (error) alert("Erreur : " + error.message);
     else alert("Compte créé ! Vérifiez vos mails.");
   }
@@ -577,7 +572,6 @@
     checkAuth();
   }
 
-  // === CALENDRIER ===
   function toggleCalendar() {
     isCalendarOpen = !isCalendarOpen;
     document.getElementById('calendar-wrapper').style.display = isCalendarOpen ? 'block' : 'none';
@@ -593,45 +587,31 @@
     updateCalendarButtonText();
     const grid = document.getElementById('calendar-grid');
     const monthLabel = document.getElementById('month-label');
-    
     if(!grid) return;
     grid.innerHTML = '';
-    
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    
     const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
     monthLabel.innerText = `${monthNames[month]} ${year}`;
-    
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    
     for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
         const empty = document.createElement('div');
         empty.className = 'cal-day empty';
         grid.appendChild(empty);
     }
-    
     for (let i = 1; i <= daysInMonth; i++) {
         const day = document.createElement('div');
         day.className = 'cal-day';
         day.innerText = i;
-        
-        if (selectedDate.getDate() === i && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) {
-            day.classList.add('active');
-        }
-        
+        if (selectedDate.getDate() === i && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) day.classList.add('active');
         const today = new Date();
         today.setHours(0,0,0,0);
         const thisDate = new Date(year, month, i);
         if (thisDate < today) {
-            day.style.opacity = '0.3';
-            day.style.cursor = 'not-allowed';
+            day.style.opacity = '0.3'; day.style.cursor = 'not-allowed';
         } else {
-            day.onclick = () => {
-                selectedDate = new Date(year, month, i);
-                renderCalendar();
-            };
+            day.onclick = () => { selectedDate = new Date(year, month, i); renderCalendar(); };
         }
         grid.appendChild(day);
     }
@@ -642,7 +622,6 @@
     renderCalendar();
   }
 
-  // === CALCUL DU TRAJET ===
   async function calcRoute() {
     const depart = document.getElementById('depart').value;
     const arrivee = document.getElementById('arrivee').value;
@@ -697,14 +676,9 @@
 
         const departIcon = L.divIcon({ className: 'custom-pin pin-depart', html: 'D', iconSize: [30, 30], iconAnchor: [15, 15] });
         departMarker = L.marker([lat1, lon1], { icon: departIcon }).addTo(map);
-
         const arriveeIcon = L.divIcon({ className: 'custom-pin pin-arrivee', html: 'A', iconSize: [30, 30], iconAnchor: [15, 15] });
         arriveeMarker = L.marker([lat2, lon2], { icon: arriveeIcon }).addTo(map);
-
-        routingLayer = L.geoJSON(route.routes[0].geometry, {
-            style: { color: '#ffd166', weight: 6, opacity: 1, lineCap: 'round', lineJoin: 'round' }
-        }).addTo(map);
-        
+        routingLayer = L.geoJSON(route.routes[0].geometry, { style: { color: '#ffd166', weight: 6, opacity: 1 } }).addTo(map);
         map.fitBounds(routingLayer.getBounds(), { padding: [30, 30] });
 
     } catch (error) {
@@ -718,14 +692,12 @@
     }
   }
 
-  // === FAVORIS ===
   function setFav(dest, depart) {
     document.getElementById('arrivee').value = dest;
     document.getElementById('depart').value = depart;
     calcRoute();
   }
 
-  // === PAIEMENT ===
   function openPaymentModal() { document.getElementById('payment-modal').style.display = 'flex'; }
   function closePaymentModal() { document.getElementById('payment-modal').style.display = 'none'; }
   function selectPay(element, method) {
@@ -735,7 +707,6 @@
   }
   function confirmPayment() { closePaymentModal(); startSearch(); }
 
-  // === RECHERCHE ===
   function startSearch() {
     const depart = document.getElementById('depart').value;
     const arrivee = document.getElementById('arrivee').value;
@@ -748,20 +719,40 @@
     showTab('recherche', document.querySelector('.bottom-nav button.active')); 
     document.getElementById('screen-passager').style.display = 'none';
     document.getElementById('screen-recherche').style.display = 'block';
+    document.getElementById('search-view').style.display = 'block';
+    document.getElementById('driver-found-view').style.display = 'none';
 
-    setTimeout(() => {
-        document.getElementById('ai-bubble').classList.add('show');
-    }, 3000);
+    // SIMULATION DE RECHERCHE
+    let searchCount = 0;
+    searchInterval = setInterval(() => {
+        searchCount++;
+        if (searchCount === 3) { // Après 3 secondes, un chauffeur est trouvé
+            document.getElementById('search-view').style.display = 'none';
+            document.getElementById('driver-found-view').style.display = 'block';
+            document.getElementById('ai-bubble').classList.add('show');
+            
+            // Compte à rebours
+            let timeLeft = 3;
+            document.getElementById('arrival-time').innerText = timeLeft;
+            let countdown = setInterval(() => {
+                timeLeft--;
+                if (timeLeft >= 0) document.getElementById('arrival-time').innerText = timeLeft;
+                else clearInterval(countdown);
+            }, 4000);
+            
+            clearInterval(searchInterval);
+        }
+    }, 1000);
   }
 
   function annulerRecherche() {
+    clearInterval(searchInterval);
     document.getElementById('ai-bubble').classList.remove('show');
     document.getElementById('screen-recherche').style.display = 'none';
     document.getElementById('screen-passager').style.display = 'block';
     document.getElementById('map-container').style.display = 'none';
   }
 
-  // === NAVIGATION ===
   function showTab(tab, btn) {
     if(btn) {
       document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
@@ -772,7 +763,6 @@
     if(tab === 'passager' && map) setTimeout(() => map.invalidateSize(), 100);
   }
 
-  // === STATUT CHAUFFEUR ===
   function toggleStatus() {
     const btn = document.getElementById('status-btn');
     if (btn.classList.contains('offline')) {
@@ -782,7 +772,6 @@
     }
   }
 
-  // === UPLOAD ===
   async function upload(input, name) {
     const file = input.files[0];
     if (!file) return;
@@ -808,7 +797,6 @@
     }
   }
 
-  // === LANCEMENT ===
   checkAuth();
   client.auth.onAuthStateChange(() => checkAuth());
 </script>
