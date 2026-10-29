@@ -3,109 +3,191 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RunLine</title>
+<title>RunLine — Transport sécurisé</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
-  body{background:#0a0a0f;color:#fff;padding:20px;display:flex;justify-content:center}
-  .container{width:100%;max-width:400px;}
-  .topnav{display:flex;justify-content:center;gap:6px;margin-bottom:24px;flex-wrap:wrap}
-  .topnav button{padding:9px 14px;border-radius:10px;background:#16161f;color:#8b8b9e;border:1px solid #26263a;cursor:pointer;font-size:12px;font-weight:600;}
-  .topnav button.active{background:#ffd166;color:#1a1a2e}
-  .phone{width:100%;background:#1a1a2e;border-radius:28px;overflow:hidden;border:1px solid #26263a;min-height:600px;padding:24px}
-  .screen{display:none}
-  .screen.active{display:block}
-  .logo{font-size:26px;font-weight:900;margin-bottom:10px}
-  .logo span{color:#ffd166}
-  .input-group{background:#16161f;border:1px solid #26263a;border-radius:12px;padding:14px;margin-bottom:10px}
-  .input-group label{font-size:10px;color:#8b8b9e;text-transform:uppercase;font-weight:600}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Segoe UI',sans-serif}
+  body{background:#0a0a0f;color:#fff;min-height:100vh;display:flex;justify-content:center}
+  .container{width:100%;max-width:400px;padding:20px;position:relative}
+  
+  /* ================= PAGE DE CONNEXION (Au démarrage) ================= */
+  #auth-screen{display:flex;flex-direction:column;justify-content:center;min-height:90vh}
+  .logo-big{font-size:38px;font-weight:900;text-align:center;margin-bottom:10px;letter-spacing:-1px}
+  .logo-big span{color:#ffd166}
+  .subtitle{text-align:center;color:#8b8b9e;margin-bottom:40px;font-size:14px}
+  
+  .btn{width:100%;padding:16px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;border:none;transition:.2s;display:flex;align-items:center;justify-content:center;gap:10px}
+  .btn-google{background:#fff;color:#1a1a2e}
+  .btn-google img{width:20px}
+  .btn-primary{background:linear-gradient(135deg,#ffd166,#ff9f1c);color:#1a1a2e}
+  .btn-outline{background:transparent;color:#fff;border:1px solid #26263a}
+  
+  .input-group{background:#16161f;border:1px solid #26263a;border-radius:12px;padding:14px;margin-bottom:12px;transition:.2s}
+  .input-group:focus-within{border-color:#ffd166}
+  .input-group label{font-size:10px;color:#8b8b9e;text-transform:uppercase;letter-spacing:1px;font-weight:600}
   .input-group input{background:none;border:none;outline:none;color:#fff;font-size:14px;width:100%;margin-top:5px}
-  .cta{width:100%;background:#ffd166;color:#1a1a2e;border:none;padding:15px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;margin-top:10px}
-  .doc{background:#16161f;border:1px solid #26263a;border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between}
-  .tabs{display:flex;gap:6px;margin-bottom:15px;background:#0f0f16;padding:4px;border-radius:10px}
-  .tabs button{flex:1;padding:8px;border:none;border-radius:6px;background:none;color:#fff;cursor:pointer}
-  .tabs button.active{background:#ffd166;color:#000}
+  
+  .divider{display:flex;align-items:center;gap:10px;margin:24px 0;color:#4a4a5e;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:#26263a}
+
+  /* ================= APPLICATION (Après connexion) ================= */
+  #app-screen{display:none;padding-bottom:80px}
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+  .header .logo{font-size:22px;font-weight:900;letter-spacing:-1px}
+  .header .logo span{color:#ffd166}
+  
+  .map-box{height:200px;background:radial-gradient(circle, #1a1a2e, #0f0f16);border-radius:20px;border:1px solid #26263a;margin-bottom:20px;display:flex;align-items:center;justify-content:center;color:#4a4a5e;font-size:13px;font-weight:600}
+  
+  .trip-card{background:#16161f;border:1px solid #26263a;border-radius:16px;padding:20px;margin-bottom:15px}
+  .trip-card h3{font-size:16px;margin-bottom:15px;color:#fff}
+  
+  .result-box{background:rgba(255,209,102,.05);border:1px solid rgba(255,209,102,.2);border-radius:12px;padding:15px;margin-top:15px;display:none}
+  .res-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;color:#c4c4d4}
+  .res-row.total{font-size:18px;font-weight:800;color:#ffd166;border-top:1px solid #26263a;padding-top:10px;margin-top:10px}
+
+  /* Barre de navigation basse */
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#16161f;border-top:1px solid #26263a;display:none;justify-content:space-around;padding:12px 0;max-width:400px;margin:0 auto}
+  .bottom-nav button{background:none;border:none;color:#4a4a5e;font-size:11px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:.2s}
+  .bottom-nav button.active{color:#ffd166}
+  .bottom-nav button span{font-size:18px}
 </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="topnav">
-    <button onclick="showScreen('login',this)">🔐 Connexion</button>
-    <button class="active" onclick="showScreen('passager',this)">👤 Passager</button>
-    <button onclick="showScreen('chauffeur',this)">🛡️ Chauffeur</button>
-  </div>
 
-  <div class="phone">
-    <!-- CONNEXION -->
-    <div class="screen" id="login">
-      <div class="logo">RUN<span>LINE</span></div>
-      <div class="tabs">
-        <button class="active" onclick="switchLogin('login',this)">Connexion</button>
-        <button onclick="switchLogin('signup',this)">S'inscrire</button>
-      </div>
-      
-      <div id="formLogin">
-        <div class="input-group"><label>Email</label><input type="email" id="loginEmail"></div>
-        <div class="input-group"><label>Mot de passe</label><input type="password" id="loginPassword"></div>
-        <button class="cta" onclick="signIn()">Se connecter</button>
-      </div>
+  <!-- ================= ÉCRAN 1 : CONNEXION ================= -->
+  <div id="auth-screen">
+    <div class="logo-big">RUN<span>LINE</span></div>
+    <div class="subtitle">Le transport premium au prix mini</div>
 
-      <div id="formSignup" style="display:none">
-        <div class="input-group"><label>Nom</label><input id="signupName"></div>
-        <div class="input-group"><label>Email</label><input type="email" id="signupEmail"></div>
-        <div class="input-group"><label>Mot de passe</label><input type="password" id="signupPassword"></div>
-        <button class="cta" onclick="signUp()">Créer mon compte</button>
-      </div>
+    <button class="btn btn-google" onclick="signInWithGoogle()">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google"> Continuer avec Google
+    </button>
+
+    <div class="divider">ou par email</div>
+
+    <!-- Formulaire de connexion -->
+    <div id="login-form">
+      <div class="input-group"><label>Email</label><input type="email" id="loginEmail" placeholder="vous@exemple.fr"></div>
+      <div class="input-group"><label>Mot de passe</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+      <button class="btn btn-primary" onclick="signIn()">Se connecter</button>
+      <button class="btn btn-outline" onclick="toggleAuth('signup')">Créer un compte</button>
     </div>
 
-    <!-- PASSAGER -->
-    <div class="screen active" id="passager">
-      <div class="logo">RUN<span>LINE</span></div>
-      <h2 style="margin-bottom:15px">Calculer un trajet</h2>
-      <div class="input-group"><label>Distance (km)</label><input id="km" type="number" value="5"></div>
-      <button class="cta" onclick="alert('Prix : ' + (1.5 + (document.getElementById('km').value * 1)).toFixed(2) + '€')">Voir le prix</button>
-    </div>
-
-    <!-- CHAUFFEUR -->
-    <div class="screen" id="chauffeur">
-      <div class="logo">RUN<span>LINE</span></div>
-      <h2 style="margin-bottom:15px">Vos documents</h2>
-      
-      <label class="doc" for="doc1">
-        <span>Permis de conduire</span>
-        <span id="s1">⬆️</span>
-        <input type="file" id="doc1" style="display:none" onchange="upload(this, 'Permis')">
-      </label>
-
-      <label class="doc" for="doc2">
-        <span>Carte VTC</span>
-        <span id="s2">⬆️</span>
-        <input type="file" id="doc2" style="display:none" onchange="upload(this, 'VTC')">
-      </label>
+    <!-- Formulaire d'inscription -->
+    <div id="signup-form" style="display:none">
+      <div class="input-group"><label>Nom complet</label><input id="signupName" placeholder="Jean Dupont"></div>
+      <div class="input-group"><label>Email</label><input type="email" id="signupEmail" placeholder="vous@exemple.fr"></div>
+      <div class="input-group"><label>Mot de passe</label><input type="password" id="signupPassword" placeholder="Min. 6 caractères"></div>
+      <button class="btn btn-primary" onclick="signUp()">Créer mon compte</button>
+      <button class="btn btn-outline" onclick="toggleAuth('login')">J'ai déjà un compte</button>
     </div>
   </div>
+
+  <!-- ================= ÉCRAN 2 : APPLICATION (Connecté) ================= -->
+  <div id="app-screen">
+    <div class="header">
+      <div class="logo">RUN<span>LINE</span></div>
+      <button class="btn-outline" style="width:auto;padding:8px 12px;font-size:12px;margin:0" onclick="signOut()">Déconnexion</button>
+    </div>
+
+    <!-- Zone Carte (Emplacement réservé pour l'instant) -->
+    <div class="map-box">🗺️ Carte Google Maps (bientôt disponible)</div>
+
+    <!-- Calculateur de trajet -->
+    <div class="trip-card">
+      <h3>Où allez-vous ?</h3>
+      <div class="input-group"><label>Départ</label><input id="depart" value="Tour Eiffel, Paris"></div>
+      <div class="input-group"><label>Arrivée</label><input id="arrivee" value="Gare du Nord, Paris"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="input-group"><label>Distance (km)</label><input id="km" type="number" value="5"></div>
+        <div class="input-group"><label>Durée (min)</label><input id="min" type="number" value="15"></div>
+      </div>
+      
+      <button class="btn btn-primary" style="margin-top:10px" onclick="calcPrice()">Estimer le prix</button>
+      
+      <div class="result-box" id="result-box">
+        <div class="res-row"><span>Prise en charge</span><b>1,50€</b></div>
+        <div class="res-row"><span id="lbl-km">Distance</span><b id="res-km">0,00€</b></div>
+        <div class="res-row"><span id="lbl-min">Durée</span><b id="res-min">0,00€</b></div>
+        <div class="res-row total"><span>Prix total</span><b id="res-total">0,00€</b></div>
+        <div class="res-row" style="color:#22d3ee;font-size:11px"><span>Commission RunLine</span><b>1,00€</b></div>
+        <div class="res-row" style="font-size:11px"><span>Le chauffeur reçoit</span><b id="res-chauffeur">0,00€</b></div>
+      </div>
+    </div>
+
+    <!-- Onglets internes (cachés pour l'instant, gérés par la nav en bas) -->
+    <div id="tab-passager"></div>
+    <div id="tab-chauffeur" style="display:none">
+      <div class="trip-card">
+        <h3>Vos documents</h3>
+        <p style="color:#8b8b9e;font-size:13px;margin-bottom:15px">Ajoutez vos documents pour être validé.</p>
+        <label class="doc" for="doc1" style="background:#0f0f16;border:1px solid #26263a;border-radius:10px;padding:14px;display:flex;justify-content:space-between;margin-bottom:10px;cursor:pointer">
+          <span>Permis de conduire</span>
+          <span id="s1">⬆️</span>
+          <input type="file" id="doc1" style="display:none" onchange="upload(this, 'Permis')">
+        </label>
+        <label class="doc" for="doc2" style="background:#0f0f16;border:1px solid #26263a;border-radius:10px;padding:14px;display:flex;justify-content:space-between;cursor:pointer">
+          <span>Carte VTC</span>
+          <span id="s2">⬆️</span>
+          <input type="file" id="doc2" style="display:none" onchange="upload(this, 'VTC')">
+        </label>
+      </div>
+    </div>
+    <div id="tab-profil" style="display:none">
+      <div class="trip-card">
+        <h3>Mon profil</h3>
+        <p style="color:#8b8b9e;font-size:13px">Connecté en tant que <span id="user-email" style="color:#ffd166"></span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barre de navigation en bas -->
+  <div class="bottom-nav" id="bottom-nav">
+    <button class="active" onclick="showTab('passager', this)"><span>🚗</span>Passager</button>
+    <button onclick="showTab('chauffeur', this)"><span>🛡️</span>Chauffeur</button>
+    <button onclick="showTab('profil', this)"><span>👤</span>Profil</button>
+  </div>
+
 </div>
 
 <script>
+  // === CONFIGURATION SUPABASE ===
   const supabaseUrl = "https://magtyeybfufywqbevaux.supabase.co";
   const supabaseKey = "sb_publishable_543lDfIDZ-lpsP6w9xiO8A_2BRveCmE";
   const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-  function showScreen(id, btn){
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.querySelectorAll('.topnav button').forEach(b=>b.classList.remove('active'));
-    if(btn) btn.classList.add('active');
+  // === VÉRIFIER SI ON EST CONNECTÉ ===
+  async function checkAuth() {
+    const { data: { session } } = await client.auth.getSession();
+    if (session) {
+      // Connecté -> On affiche l'app
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'block';
+      document.getElementById('bottom-nav').style.display = 'flex';
+      document.getElementById('user-email').innerText = session.user.email;
+    } else {
+      // Pas connecté -> On affiche la page de connexion
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('app-screen').style.display = 'none';
+      document.getElementById('bottom-nav').style.display = 'none';
+    }
   }
 
-  function switchLogin(tab, btn){
-    document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('formLogin').style.display = tab==='login' ? 'block' : 'none';
-    document.getElementById('formSignup').style.display = tab==='signup' ? 'block' : 'none';
+  // === BASCULER ENTRE CONNEXION / INSCRIPTION ===
+  function toggleAuth(form) {
+    document.getElementById('login-form').style.display = (form === 'login') ? 'block' : 'none';
+    document.getElementById('signup-form').style.display = (form === 'signup') ? 'block' : 'none';
   }
 
+  // === CONNEXION GOOGLE ===
+  async function signInWithGoogle() {
+    const { error } = await client.auth.signInWithOAuth({ provider: 'google' });
+    if (error) alert(error.message);
+  }
+
+  // === INSCRIPTION EMAIL ===
   async function signUp() {
     const email = document.getElementById('signupEmail').value;
     const password = document.getElementById('signupPassword').value;
@@ -116,15 +198,45 @@
     else alert("Compte créé ! Vérifiez vos mails.");
   }
 
+  // === CONNEXION EMAIL ===
   async function signIn() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     
     const { error } = await client.auth.signInWithPassword({ email, password });
     if (error) alert("Erreur : " + error.message);
-    else alert("Connecté !");
+    else checkAuth();
   }
 
+  // === DÉCONNEXION ===
+  async function signOut() {
+    await client.auth.signOut();
+    checkAuth();
+  }
+
+  // === CALCUL DU PRIX ===
+  function calcPrice() {
+    const km = parseFloat(document.getElementById('km').value) || 0;
+    const min = parseFloat(document.getElementById('min').value) || 0;
+    
+    const base = 1.50;
+    const prixKm = km * 1.00;
+    const prixMin = min * 0.15;
+    const total = base + prixKm + prixMin;
+    const commission = 1.00;
+    const chauffeur = total - commission;
+
+    document.getElementById('lbl-km').innerText = `Distance (${km} km)`;
+    document.getElementById('res-km').innerText = prixKm.toFixed(2).replace('.', ',') + '€';
+    document.getElementById('lbl-min').innerText = `Durée (${min} min)`;
+    document.getElementById('res-min').innerText = prixMin.toFixed(2).replace('.', ',') + '€';
+    document.getElementById('res-total').innerText = total.toFixed(2).replace('.', ',') + '€';
+    document.getElementById('res-chauffeur').innerText = chauffeur.toFixed(2).replace('.', ',') + '€';
+    
+    document.getElementById('result-box').style.display = 'block';
+  }
+
+  // === UPLOAD DOCUMENTS ===
   async function upload(input, name) {
     const file = input.files[0];
     if (!file) return;
@@ -145,6 +257,20 @@
       alert("Document envoyé avec succès !");
     }
   }
+
+  // === NAVIGATION BASSE ===
+  function showTab(tab, btn) {
+    document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    document.getElementById('tab-passager').style.display = (tab === 'passager') ? 'block' : 'none';
+    document.getElementById('tab-chauffeur').style.display = (tab === 'chauffeur') ? 'block' : 'none';
+    document.getElementById('tab-profil').style.display = (tab === 'profil') ? 'block' : 'none';
+  }
+
+  // === LANCEMENT ===
+  checkAuth();
+  client.auth.onAuthStateChange(() => checkAuth());
 </script>
 </body>
 </html>
