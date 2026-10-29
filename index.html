@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RunLine — Transport Premium</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Bibliothèques pour la carte interactive -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -131,7 +130,6 @@
         <div class="big">1€<small> /course</small></div>
       </div>
 
-      <!-- LA CARTE EST ICI -->
       <div id="map-container"></div>
 
       <div class="trip-card">
@@ -145,7 +143,7 @@
         <div class="input-group"><label>Départ</label><input id="depart" value="Paris"></div>
         <div class="input-group"><label>Arrivée</label><input id="arrivee" value="Marseille"></div>
         
-        <button class="btn btn-primary" id="btn-calc" style="margin-top:10px" onclick="calcRoute()">Calculer mon trajet</button>
+        <button class="btn btn-primary" id="btn-calc" style="margin-top:10px" onclick="calcRoute()">Estimer le prix</button>
         
         <div class="result-box" id="result-box">
           <div class="res-row"><span>Distance</span><b id="res-km">-</b></div>
@@ -165,7 +163,7 @@
       </div>
     </div>
 
-    <!-- CHAUFFEUR, HISTORIQUE, PROFIL (inchangés) -->
+    <!-- CHAUFFEUR, HISTORIQUE, PROFIL -->
     <div class="screen-content" id="screen-chauffeur">
        <div class="secure-bar">Documents chiffrés AES-256 · Vérification manuelle</div>
        <div class="hero" style="padding:18px;"><h2>Dossier de vérification</h2><p>Tous les documents sont contrôlés manuellement sous 48h.</p></div>
@@ -197,19 +195,13 @@
   const supabaseUrl = "https://magtyeybfufywqbevaux.supabase.co";
   const supabaseKey = "sb_publishable_543lDfIDZ-lpsP6w9xiO8A_2BRveCmE";
   const client = supabase.createClient(supabaseUrl, supabaseKey);
-  
-  // ⚠️ REMPLACE CE MOT PAR TA CLÉ OPENROUTESERVICE
-  const OPENROUTE_API_KEY = "TA_CLE_API_ICI";
 
   // === INITIALISATION DE LA CARTE ===
   let map;
-  let routingControl = null;
+  let polyline = null;
 
   function initMap() {
-    // On centre la carte sur la France
     map = L.map('map-container').setView([46.603354, 1.888334], 6);
-    
-    // On ajoute le fond de carte (OpenStreetMap)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
@@ -224,7 +216,6 @@
       document.getElementById('bottom-nav').style.display = 'flex';
       document.getElementById('main-footer').style.display = 'block';
       document.getElementById('user-email').innerText = session.user.email;
-      // On initialise la carte seulement quand on est connecté
       setTimeout(initMap, 100); 
     } else {
       document.getElementById('auth-screen').style.display = 'flex';
@@ -262,35 +253,35 @@
     checkAuth();
   }
 
-  // === CALCUL DU TRAJET AVEC OPENROUTE ET AFFICHAGE SUR LA CARTE ===
+  // === CALCUL DU TRAJET ===
   async function calcRoute() {
     const depart = document.getElementById('depart').value;
     const arrivee = document.getElementById('arrivee').value;
     const btn = document.getElementById('btn-calc');
     
-    if(!depart || !arrivee) return alert("Remplissez les adresses.");
+    // Si les champs sont vides, on ne fait rien
+    if(!depart || !arrivee) return;
     
-    btn.innerHTML = 'Calcul en cours... <div class="spinner"></div>';
+    btn.innerHTML = 'Estimation... <div class="spinner"></div>';
     btn.disabled = true;
 
     try {
-        // 1. On transforme les adresses en coordonnées GPS
-        const geoDepart = await fetch(`https://api.openrouteservice.org/geocode/search?api_key=${OPENROUTE_API_KEY}&text=${depart}`).then(r => r.json());
-        const geoArrivee = await fetch(`https://api.openrouteservice.org/geocode/search?api_key=${OPENROUTE_API_KEY}&text=${arrivee}`).then(r => r.json());
+        // 1. Géocodage
+        const geoDepart = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${depart}`).then(r => r.json());
+        const geoArrivee = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${arrivee}`).then(r => r.json());
         
-        if(geoDepart.features.length === 0 || geoArrivee.features.length === 0) throw new Error("Ville introuvable");
+        if(geoDepart.length === 0 || geoArrivee.length === 0) throw new Error("Ville introuvable");
 
-        const coordDepart = geoDepart.features[0].geometry.coordinates;
-        const coordArrivee = geoArrivee.features[0].geometry.coordinates;
+        const lat1 = geoDepart[0].lat; const lon1 = geoDepart[0].lon;
+        const lat2 = geoArrivee[0].lat; const lon2 = geoArrivee[0].lon;
 
-        // 2. On calcule l'itinéraire
-        const route = await fetch(`https://api.openrouteservice.org/v2/directions/driving-car?api_key=${OPENROUTE_API_KEY}&start=${coordDepart[0]},${coordDepart[1]}&end=${coordArrivee[0]},${coordArrivee[1]}`).then(r => r.json());
+        // 2. Calcul de l'itinéraire
+        const route = await fetch(`https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`).then(r => r.json());
         
-        const distanceMetres = route.features[0].properties.segments[0].distance;
-        const dureeSecondes = route.features[0].properties.segments[0].duration;
-        
-        const distanceKm = distanceMetres / 1000;
-        const dureeMin = dureeSecondes / 60;
+        if(route.code !== 'Ok') throw new Error("Erreur de trajet");
+
+        const distanceKm = route.routes[0].distance / 1000;
+        const dureeMin = route.routes[0].duration / 60;
         
         // 3. Calcul du prix
         const base = 1.50;
@@ -309,23 +300,27 @@
         document.getElementById('result-box').style.display = 'block';
         document.getElementById('btn-commander').style.display = 'block';
 
-        // 5. DESSIN DE LA ROUTE SUR LA CARTE
-        if (routingControl) {
-            map.removeControl(routingControl);
-        }
+        // 5. DESSIN DU TRACÉ SUR LA CARTE
+        if (polyline) map.removeLayer(polyline);
         
-        const coords = route.features[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
-        
-        // On utilise un polyline simple pour dessiner le tracé
-        L.polyline(coords, {color: '#ffd166', weight: 5}).addTo(map);
+        // On utilise les données GeoJSON fournies par OSRM
+        const geojsonLayer = L.geoJSON(route.routes[0].geometry, {
+            style: { color: '#ffd166', weight: 6, opacity: 0.9 }
+        }).addTo(map);
         
         // On centre la carte sur le trajet
-        map.fitBounds(coords);
+        map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
+        
+        // On garde une référence pour pouvoir l'effacer au prochain calcul
+        polyline = geojsonLayer;
 
     } catch (error) {
-        alert("Erreur de calcul : " + error.message);
+        console.error(error);
+        document.getElementById('result-box').style.display = 'none';
+        document.getElementById('btn-commander').style.display = 'none';
+        // On ne met pas d'alerte pour que ça reste fluide
     } finally {
-        btn.innerHTML = 'Calculer mon trajet';
+        btn.innerHTML = 'Estimer le prix';
         btn.disabled = false;
     }
   }
@@ -350,10 +345,6 @@
     document.getElementById('screen-passager').style.display = 'none';
     document.getElementById('screen-recherche').style.display = 'block';
   }
-  function annulerRecherche() {
-    document.getElementById('screen-recherche').style.display = 'none';
-    document.getElementById('screen-passager').style.display = 'block';
-  }
 
   // === NAVIGATION ===
   function showTab(tab, btn) {
@@ -364,7 +355,6 @@
     document.querySelectorAll('.screen-content').forEach(s => s.style.display = 'none');
     document.getElementById('screen-' + tab).style.display = 'block';
     
-    // Quand on revient sur l'onglet passager, on rafraîchit la carte
     if(tab === 'passager' && map) {
         setTimeout(() => map.invalidateSize(), 100);
     }
