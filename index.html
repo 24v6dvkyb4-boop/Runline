@@ -16,7 +16,7 @@
   #auth-screen{display:flex;flex-direction:column;justify-content:center;min-height:90vh}
   .logo-big{font-size:38px;font-weight:900;text-align:center;margin-bottom:10px;letter-spacing:-1.5px}
   .logo-big span{background:linear-gradient(135deg,#ffd166,#ff9f1c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .subtitle{text-align:center;color:#8b8b9e;margin-bottom:40px;font-size:14px}
+  .subtitle{text-align:center;color:#8b8b9e;margin-bottom:30px;font-size:14px}
   .btn{width:100%;padding:16px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;border:none;transition:.2s;display:flex;align-items:center;justify-content:center;gap:10px}
   .btn-google{background:#fff;color:#1a1a2e}
   .btn-google img{width:20px}
@@ -29,6 +29,13 @@
   .divider{display:flex;align-items:center;gap:10px;margin:24px 0;color:#4a4a5e;font-size:11px;text-transform:uppercase;letter-spacing:1px}
   .divider::before,.divider::after{content:'';flex:1;height:1px;background:#26263a}
 
+  /* CHOIX DU RÔLE À L'INSCRIPTION */
+  .role-select{display:flex;gap:10px;margin-bottom:15px}
+  .role-btn{flex:1;background:#16161f;border:2px solid #26263a;border-radius:12px;padding:15px;text-align:center;cursor:pointer;transition:.2s}
+  .role-btn.active{border-color:#ffd166;background:rgba(255,209,102,0.1)}
+  .role-btn .icon{font-size:24px;display:block;margin-bottom:5px}
+  .role-btn .name{font-size:13px;font-weight:700;color:#fff}
+
   /* APPLICATION */
   #app-screen{display:none}
   .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
@@ -36,7 +43,7 @@
   .header .logo span{background:linear-gradient(135deg,#ffd166,#ff9f1c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   
   /* CARTE */
-  #map-container{height:250px;border-radius:20px;border:1px solid #26263a;margin-bottom:20px;overflow:hidden;position:relative;z-index:1; background:#16161f;}
+  #map-container{height:220px;border-radius:20px;border:1px solid #26263a;margin-bottom:20px;overflow:hidden;position:relative;z-index:1; background:#16161f;}
   .leaflet-layer { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
   
   /* HERO CARD */
@@ -93,11 +100,18 @@
   .sec-btn.audio { border-color: #8b5cf6; color: #8b5cf6; }
   .sec-btn:active { opacity: 0.7; }
 
-  /* NOUVEAUX CHAMPS FORMULAIRE */
-  .select-group{background:#16161f;border:1px solid #26263a;border-radius:12px;padding:14px;margin-bottom:12px; display: flex; flex-direction: column;}
-  .select-group label{font-size:10px;color:#8b8b9e;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:5px;}
-  .select-group select {background:none;border:none;outline:none;color:#fff;font-size:14px;width:100%;-webkit-appearance:none;}
-  .select-group select option { background: #16161f; color: #fff; }
+  /* CALENDRIER */
+  .calendar-box{background:#16161f;border:1px solid #26263a;border-radius:16px;padding:15px;margin-bottom:15px}
+  .calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:700}
+  .calendar-header button{background:none;border:none;color:#ffd166;font-size:18px;cursor:pointer}
+  .calendar-grid{display:grid;grid-template-columns:repeat(7, 1fr);gap:5px;text-align:center}
+  .cal-day{padding:8px;font-size:12px;border-radius:8px;cursor:pointer;transition:.2s}
+  .cal-day:hover{background:#26263a}
+  .cal-day.active{background:#ffd166;color:#1a1a2e;font-weight:700}
+  .cal-day.empty{visibility:hidden}
+  .cal-time-selector{display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;margin-top:15px}
+  .time-slot{background:#0f0f16;border:1px solid #26263a;padding:8px;border-radius:8px;text-align:center;font-size:12px;cursor:pointer}
+  .time-slot.active{background:#ffd166;color:#1a1a2e;border-color:#ffd166;font-weight:700}
 
   /* MODAL DE PAIEMENT */
   .payment-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(5px); }
@@ -149,21 +163,34 @@
   <div id="auth-screen">
     <div class="logo-big">RUN<span>LINE</span></div>
     <div class="subtitle">Le transport premium au prix mini</div>
-    <button class="btn btn-google" onclick="signInWithGoogle()">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"> Continuer avec Google
-    </button>
-    <div class="divider">ou par email</div>
+    
     <div id="login-form">
+      <button class="btn btn-google" onclick="signInWithGoogle()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"> Continuer avec Google
+      </button>
+      <div class="divider">ou par email</div>
       <div class="input-group"><label>Email</label><input type="email" id="loginEmail"></div>
       <div class="input-group"><label>Mot de passe</label><input type="password" id="loginPassword"></div>
       <button class="btn btn-primary" onclick="signIn()">Se connecter</button>
       <button class="btn btn-outline" onclick="toggleAuth('signup')">Créer un compte</button>
     </div>
+
     <div id="signup-form" style="display:none">
       <div class="input-group"><label>Nom</label><input id="signupName"></div>
       <div class="input-group"><label>Email</label><input type="email" id="signupEmail"></div>
       <div class="input-group"><label>Mot de passe</label><input type="password" id="signupPassword"></div>
-      <button class="btn btn-primary" onclick="signUp()">Créer mon compte</button>
+      
+      <div style="margin-top:15px; margin-bottom:10px; color:#8b8b9e; font-size:12px; text-align:center;">Je m'inscris en tant que :</div>
+      <div class="role-select">
+        <div class="role-btn active" id="role-passager" onclick="selectRole('passager')">
+          <span class="icon">👤</span><span class="name">Passager</span>
+        </div>
+        <div class="role-btn" id="role-chauffeur" onclick="selectRole('chauffeur')">
+          <span class="icon">🚗</span><span class="name">Chauffeur</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top:10px;" onclick="signUp()">Créer mon compte</button>
       <button class="btn btn-outline" onclick="toggleAuth('login')">J'ai déjà un compte</button>
     </div>
   </div>
@@ -198,22 +225,28 @@
         <div class="input-group"><label>Départ</label><input id="depart" value="Paris"></div>
         <div class="input-group"><label>Arrivée</label><input id="arrivee" value="Marseille"></div>
         
-        <div class="select-group">
-          <label>Type de véhicule</label>
-          <select id="type-vehicule">
+        <div class="select-group" style="background:#16161f;border:1px solid #26263a;border-radius:12px;padding:14px;margin-bottom:12px;">
+          <label style="font-size:10px;color:#8b8b9e;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:5px;display:block;">Type de véhicule</label>
+          <select id="type-vehicule" style="background:none;border:none;outline:none;color:#fff;font-size:14px;width:100%;">
             <option value="standard">🚗 Standard (Économique)</option>
             <option value="van">🚐 Van (Groupes/Bagages)</option>
           </select>
         </div>
 
-        <div class="select-group">
-          <label>Quand ?</label>
-          <select id="quand-reserver">
-            <option value="now">Maintenant (Dès que possible)</option>
-            <option value="30m">Dans 30 minutes</option>
-            <option value="1h">Dans 1 heure</option>
-            <option value="demain">Demain matin (8h00)</option>
-          </select>
+        <!-- CALENDRIER INTERACTIF -->
+        <div class="calendar-box">
+          <div style="font-size:10px;color:#8b8b9e;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:10px;">Quand ?</div>
+          <div class="calendar-header">
+            <button onclick="changeMonth(-1)">◀</button>
+            <span id="month-label"></span>
+            <button onclick="changeMonth(1)">▶</button>
+          </div>
+          <div class="calendar-grid" id="calendar-grid">
+            <!-- Jours générés par JS -->
+          </div>
+          <div class="cal-time-selector" id="time-selector">
+            <!-- Heures générées par JS -->
+          </div>
         </div>
 
         <button class="btn btn-primary" id="btn-calc" style="margin-top:10px" onclick="calcRoute()">Estimer le prix</button>
@@ -380,10 +413,10 @@
     </div>
   </div>
 
-  <!-- NAVIGATION -->
+  <!-- NAVIGATION (Modifiée selon le rôle) -->
   <div class="bottom-nav" id="bottom-nav">
-    <button class="active" onclick="showTab('passager', this)"><span>🚗</span>Passager</button>
-    <button onclick="showTab('chauffeur', this)"><span>🛡️</span>Chauffeur</button>
+    <button class="active" id="nav-passager" onclick="showTab('passager', this)"><span>🚗</span>Passager</button>
+    <button id="nav-chauffeur" onclick="showTab('chauffeur', this)" style="display:none;"><span>🛡️</span>Chauffeur</button>
     <button onclick="showTab('historique', this)"><span>🧾</span>Courses</button>
     <button onclick="showTab('profil', this)"><span>👤</span>Profil</button>
   </div>
@@ -409,6 +442,12 @@
   let departMarker = null;
   let arriveeMarker = null;
   let selectedPaymentMethod = 'cb';
+  let selectedRole = 'passager'; // Rôle par défaut à l'inscription
+  
+  // Variables pour le calendrier
+  let currentDate = new Date();
+  let selectedDate = new Date();
+  let selectedTime = "Maintenant";
 
   // === INITIALISATION DE LA CARTE ===
   function initMap() {
@@ -420,6 +459,16 @@
     L.control.zoom({ position: 'topright' }).addTo(map);
   }
 
+  // === GESTION DU RÔLE À L'INSCRIPTION ===
+  function selectRole(role) {
+    selectedRole = role;
+    document.getElementById('role-passager').classList.remove('active');
+    document.getElementById('role-chauffeur').classList.remove('active');
+    
+    if(role === 'passager') document.getElementById('role-passager').classList.add('active');
+    else document.getElementById('role-chauffeur').classList.add('active');
+  }
+
   // === AUTHENTIFICATION SUPABASE ===
   async function checkAuth() {
     const { data: { session } } = await client.auth.getSession();
@@ -429,7 +478,23 @@
       document.getElementById('bottom-nav').style.display = 'flex';
       document.getElementById('main-footer').style.display = 'block';
       document.getElementById('user-email').innerText = session.user.email;
+      
+      // On récupère le rôle de l'utilisateur (stocké dans les métadonnées Supabase)
+      const userRole = session.user.user_metadata.role || 'passager';
+      
+      // Affichage conditionnel de l'onglet Chauffeur
+      if (userRole === 'chauffeur') {
+        document.getElementById('nav-chauffeur').style.display = 'flex';
+        document.getElementById('nav-passager').style.display = 'none'; // Un chauffeur ne commande pas
+        showTab('chauffeur', document.getElementById('nav-chauffeur'));
+      } else {
+        document.getElementById('nav-chauffeur').style.display = 'none';
+        document.getElementById('nav-passager').style.display = 'flex';
+        showTab('passager', document.getElementById('nav-passager'));
+      }
+
       setTimeout(initMap, 100); 
+      renderCalendar(); // On initialise le calendrier
     } else {
       document.getElementById('auth-screen').style.display = 'flex';
       document.getElementById('app-screen').style.display = 'none';
@@ -451,8 +516,17 @@
   async function signUp() {
     const email = document.getElementById('signupEmail').value;
     const password = document.getElementById('signupPassword').value;
+    const name = document.getElementById('signupName').value;
+    
     if(!email || !password) return alert("Remplissez tout");
-    const { error } = await client.auth.signUp({ email, password });
+    
+    // On enregistre le rôle (passager ou chauffeur) dans les métadonnées
+    const { error } = await client.auth.signUp({ 
+        email, 
+        password,
+        options: { data: { full_name: name, role: selectedRole } }
+    });
+    
     if (error) alert("Erreur : " + error.message);
     else alert("Compte créé ! Vérifiez vos mails.");
   }
@@ -470,7 +544,81 @@
     checkAuth();
   }
 
-  // === CALCUL DU TRAJET (CARTE) ===
+  // === CALENDRIER INTERACTIF ===
+  function renderCalendar() {
+    const grid = document.getElementById('calendar-grid');
+    const monthLabel = document.getElementById('month-label');
+    const timeSelector = document.getElementById('time-selector');
+    
+    grid.innerHTML = '';
+    timeSelector.innerHTML = '';
+    
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+    monthLabel.innerText = `${monthNames[month]} ${year}`;
+    
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    // Jours vides au début
+    for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
+        const empty = document.createElement('div');
+        empty.className = 'cal-day empty';
+        grid.appendChild(empty);
+    }
+    
+    // Jours du mois
+    for (let i = 1; i <= daysInMonth; i++) {
+        const day = document.createElement('div');
+        day.className = 'cal-day';
+        day.innerText = i;
+        
+        // Vérifier si c'est le jour sélectionné
+        if (selectedDate.getDate() === i && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) {
+            day.classList.add('active');
+        }
+        
+        // Désactiver les jours passés
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const thisDate = new Date(year, month, i);
+        if (thisDate < today) {
+            day.style.opacity = '0.3';
+            day.style.cursor = 'not-allowed';
+        } else {
+            day.onclick = () => {
+                selectedDate = new Date(year, month, i);
+                renderCalendar();
+            };
+        }
+        grid.appendChild(day);
+    }
+    
+    // Générateur d'heures (de 6h à 23h)
+    const hours = ["Maintenant", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"];
+    hours.forEach(h => {
+        const slot = document.createElement('div');
+        slot.className = 'time-slot';
+        slot.innerText = h;
+        
+        if (selectedTime === h) slot.classList.add('active');
+        
+        slot.onclick = () => {
+            selectedTime = h;
+            renderCalendar();
+        };
+        timeSelector.appendChild(slot);
+    });
+  }
+
+  function changeMonth(direction) {
+    currentDate.setMonth(currentDate.getMonth() + direction);
+    renderCalendar();
+  }
+
+  // === CALCUL DU TRAJET ===
   async function calcRoute() {
     const depart = document.getElementById('depart').value;
     const arrivee = document.getElementById('arrivee').value;
@@ -549,7 +697,7 @@
     calcRoute();
   }
 
-  // === PAIEMENT ET COMMANDE ===
+  // === PAIEMENT ===
   function openPaymentModal() {
     document.getElementById('payment-modal').style.display = 'flex';
   }
@@ -574,15 +722,15 @@
     const depart = document.getElementById('depart').value;
     const arrivee = document.getElementById('arrivee').value;
     const prix = document.getElementById('res-total').innerText;
+    const dateStr = selectedDate.toLocaleDateString('fr-FR');
     
-    document.getElementById('recap-trajet').innerText = `${depart} ➔ ${arrivee}`;
+    document.getElementById('recap-trajet').innerText = `${depart} ➔ ${arrivee} (${dateStr} à ${selectedTime})`;
     document.getElementById('recap-prix').innerText = prix;
 
     showTab('recherche', document.querySelector('.bottom-nav button.active')); 
     document.getElementById('screen-passager').style.display = 'none';
     document.getElementById('screen-recherche').style.display = 'block';
 
-    // Afficher l'IA au bout de 3 secondes
     setTimeout(() => {
         document.getElementById('ai-bubble').classList.add('show');
     }, 3000);
