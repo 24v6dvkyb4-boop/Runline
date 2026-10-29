@@ -8,7 +8,7 @@
 <style>
   *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Segoe UI',sans-serif}
   body{background:#0a0a0f;color:#fff;min-height:100vh;display:flex;justify-content:center}
-  .container{width:100%;max-width:420px;padding:20px;position:relative}
+  .container{width:100%;max-width:420px;padding:20px;position:relative;padding-bottom:100px}
   
   /* CONNEXION */
   #auth-screen{display:flex;flex-direction:column;justify-content:center;min-height:90vh}
@@ -28,12 +28,12 @@
   .divider::before,.divider::after{content:'';flex:1;height:1px;background:#26263a}
 
   /* APPLICATION */
-  #app-screen{display:none;padding-bottom:80px}
+  #app-screen{display:none}
   .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
   .header .logo{font-size:22px;font-weight:900;letter-spacing:-1px}
   .header .logo span{background:linear-gradient(135deg,#ffd166,#ff9f1c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   
-  /* HERO CARD (Le gros bloc doré) */
+  /* HERO CARD */
   .hero{background:linear-gradient(135deg,#ffd166,#ff9f1c);color:#1a1a2e;border-radius:20px;padding:22px;margin-bottom:20px;position:relative;overflow:hidden}
   .hero::after{content:'🚗';position:absolute;right:16px;top:16px;font-size:48px;opacity:.15}
   .hero h2{font-size:18px;font-weight:800;margin-bottom:6px}
@@ -74,6 +74,13 @@
   .bottom-nav button span{font-size:18px}
 
   .screen-content { display: none; }
+
+  /* FOOTER */
+  .footer{text-align:center; padding: 30px 20px 20px; border-top: 1px solid #26263a; margin-top: 30px;}
+  .footer p{font-size: 11px; color: #4a4a5e; margin-bottom: 8px;}
+  .footer .links{display:flex; justify-content:center; gap:12px; font-size:10px;}
+  .footer a{color:#8b8b9e; text-decoration:none;}
+  .footer .secure-tag{margin-top:10px; font-size:10px; color:#22d3ee;}
 </style>
 </head>
 <body>
@@ -192,11 +199,22 @@
     </div>
   </div>
 
-  <!-- NAV -->
+  <!-- NAVIGATION -->
   <div class="bottom-nav" id="bottom-nav">
     <button class="active" onclick="showTab('passager', this)"><span>🚗</span>Passager</button>
     <button onclick="showTab('chauffeur', this)"><span>🛡️</span>Chauffeur</button>
     <button onclick="showTab('profil', this)"><span>👤</span>Profil</button>
+  </div>
+
+  <!-- PIED DE PAGE -->
+  <div class="footer" id="main-footer">
+    <p>© 2026 RunLine. Tous droits réservés.</p>
+    <div class="links">
+      <a href="#">Mentions légales</a>
+      <a href="#">Politique de confidentialité</a>
+      <a href="#">CGU</a>
+    </div>
+    <div class="secure-tag">🔒 Paiement sécurisé par Stripe · Données chiffrées AES-256</div>
   </div>
 
 </div>
@@ -212,11 +230,13 @@
       document.getElementById('auth-screen').style.display = 'none';
       document.getElementById('app-screen').style.display = 'block';
       document.getElementById('bottom-nav').style.display = 'flex';
+      document.getElementById('main-footer').style.display = 'block';
       document.getElementById('user-email').innerText = session.user.email;
     } else {
       document.getElementById('auth-screen').style.display = 'flex';
       document.getElementById('app-screen').style.display = 'none';
       document.getElementById('bottom-nav').style.display = 'none';
+      document.getElementById('main-footer').style.display = 'none';
     }
   }
 
