@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RunLine</title>
-<!-- L'importation de Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
@@ -89,12 +88,10 @@
 </div>
 
 <script>
-  // 1. Initialisation de Supabase (une seule fois !)
   const supabaseUrl = "https://magtyeybfufywqbevaux.supabase.co";
   const supabaseKey = "sb_publishable_543lDfIDZ-lpsP6w9xiO8A_2BRveCmE";
   const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // 2. Navigation
   function showScreen(id, btn){
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
@@ -109,7 +106,6 @@
     document.getElementById('formSignup').style.display = tab==='signup' ? 'block' : 'none';
   }
 
-  // 3. Fonctions Supabase
   async function signUp() {
     const email = document.getElementById('signupEmail').value;
     const password = document.getElementById('signupPassword').value;
