@@ -35,9 +35,8 @@
   .header .logo{font-size:22px;font-weight:900;letter-spacing:-1px}
   .header .logo span{background:linear-gradient(135deg,#ffd166,#ff9f1c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   
-  /* CARTE (CORRIGÉE) */
+  /* CARTE */
   #map-container{height:250px;border-radius:20px;border:1px solid #26263a;margin-bottom:20px;overflow:hidden;position:relative;z-index:1; background:#16161f;}
-  /* Filtre pour assombrir la carte sans avoir de message "API KEY REQUIRED" */
   .leaflet-layer { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
   
   /* HERO CARD */
@@ -86,6 +85,22 @@
   .offline{background:#26263a;color:#8b8b9e;}
   .online{background:#22d3ee;color:#0a0a0f;}
 
+  /* NOUVEAUX BOUTONS SECURITE / OPTIONS */
+  .security-actions { display: flex; gap: 10px; margin-top: 15px; }
+  .sec-btn { flex: 1; background: #1a1a2e; border: 1px solid #ef4444; color: #ef4444; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
+  .sec-btn.share { border-color: #22d3ee; color: #22d3ee; }
+  .sec-btn.call { border-color: #ffd166; color: #ffd166; }
+  .sec-btn.audio { border-color: #8b5cf6; color: #8b5cf6; }
+  .sec-btn:active { opacity: 0.7; }
+
+  /* NOUVEAUX CHAMPS DANS LE FORMULAIRE */
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .select-group{background:#16161f;border:1px solid #26263a;border-radius:12px;padding:14px;margin-bottom:12px;}
+  .select-group label{font-size:10px;color:#8b8b9e;text-transform:uppercase;letter-spacing:1px;font-weight:600;display:block;margin-bottom:5px;}
+  .select-group select{background:none;border:none;outline:none;color:#fff;font-size:14px;width:100%;-webkit-appearance:none;}
+  .checkbox-row{display:flex;align-items:center;gap:10px;margin-bottom:15px;font-size:13px;color:#c4c4d4;}
+  .checkbox-row input{width:18px;height:18px;accent-color:#ffd166;}
+
   /* NAV */
   .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#16161f;border-top:1px solid #26263a;display:none;justify-content:space-around;padding:12px 0;max-width:400px;margin:0 auto;z-index:100}
   .bottom-nav button{background:none;border:none;color:#4a4a5e;font-size:11px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
@@ -109,8 +124,10 @@
   .pin-depart { background: #22d3ee; width: 30px; height: 30px; }
   .pin-arrivee { background: #ffd166; width: 30px; height: 30px; color: #1a1a2e; }
   
-  /* Cacher l'attribution trop grosse de Leaflet */
-  .leaflet-control-attribution { font-size: 8px !important; background: rgba(0,0,0,0.5) !important; color: #fff !important; }
+  /* IA Assistant */
+  .ai-bubble { background: #1a1a2e; border: 1px solid #22d3ee; border-radius: 12px; padding: 12px; font-size: 12px; color: #22d3ee; margin-top: 15px; display: none; }
+  .ai-bubble.show { display: block; animation: fadeIn 0.3s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
@@ -170,6 +187,27 @@
         <div class="input-group"><label>Départ</label><input id="depart" value="Paris"></div>
         <div class="input-group"><label>Arrivée</label><input id="arrivee" value="Marseille"></div>
         
+        <!-- NOUVEAU : CHOIX DU VÉHICULE -->
+        <div class="select-group">
+          <label>Type de véhicule</label>
+          <select id="type-vehicule">
+            <option value="standard">🚗 Standard (Économique)</option>
+            <option value="van">🚐 Van (Groupes/Bagages)</option>
+          </select>
+        </div>
+
+        <!-- NOUVEAU : RÉSERVATION À L'AVANCE -->
+        <div class="select-group">
+          <label>Réserver pour plus tard (Optionnel)</label>
+          <input type="datetime-local" id="date-reservation" style="background:none;border:none;outline:none;color:#fff;font-size:14px;width:100%;margin-top:5px;color-scheme:dark;">
+        </div>
+
+        <!-- NOUVEAU : MODE POUR UN PROCHE -->
+        <div class="checkbox-row">
+          <input type="checkbox" id="pour-proche">
+          <label for="pour-proche">Je commande pour un proche</label>
+        </div>
+
         <button class="btn btn-primary" id="btn-calc" style="margin-top:10px" onclick="calcRoute()">Estimer le prix</button>
         
         <div class="result-box" id="result-box">
@@ -273,7 +311,38 @@
       </div>
     </div>
     
-    <div class="screen-content" id="screen-recherche"><div style="text-align:center; padding-top: 50px;"><h2>Recherche en cours...</h2></div></div>
+    <!-- RECHERCHE / COURSE EN COURS -->
+    <div class="screen-content" id="screen-recherche">
+      <div style="text-align:center; padding-top: 20px;">
+        <div class="spinner" style="width: 40px; height: 40px; border-width: 4px; border-top-color: #ffd166; margin: 0 auto 20px;"></div>
+        <h2 style="font-size:20px; margin-bottom:10px;">Recherche d'un chauffeur...</h2>
+        <p style="color:#8b8b9e; font-size:13px;">Veuillez patienter.</p>
+      </div>
+
+      <div class="trip-card" style="margin-top:20px; text-align:left;">
+        <p style="font-size:14px; color:#fff; margin-bottom:5px;">Votre trajet :</p>
+        <p id="recap-trajet" style="font-size:13px; color:#8b8b9e; margin-bottom:15px;"></p>
+        <p style="font-size:14px; color:#22d3ee; font-weight:700; margin-bottom:15px;">Prix : <span id="recap-prix"></span></p>
+
+        <!-- NOUVELLES FONCTIONNALITÉS DE SÉCURITÉ ET CONFORT -->
+        <div class="security-actions">
+          <button class="sec-btn" onclick="alert('🚨 Bouton d\'urgence activé. Les secours et votre contact d\'urgence sont prévenus.')">🚨 SOS</button>
+          <button class="sec-btn share" onclick="alert('🔗 Lien de partage copié ! Envoyez-le à un proche pour qu\'il suive votre trajet.')">🔗 Partager</button>
+          <button class="sec-btn call" onclick="alert('📞 Appel masqué en cours vers le chauffeur...')">📞 Appeler</button>
+        </div>
+        
+        <div class="security-actions" style="margin-top:10px;">
+          <button class="sec-btn audio" onclick="alert('🎙️ Enregistrement audio activé pour cette course.')">🎙️ Enregistrer l'audio</button>
+        </div>
+
+        <div class="ai-bubble" id="ai-bubble">
+          <strong>🤖 Assistant RunLine :</strong> Votre chauffeur arrive dans 3 min. Il est en Peugeot 308 grise. N'oubliez pas de vérifier la plaque avant de monter.
+        </div>
+
+        <button class="btn btn-outline" style="margin-top:20px;" onclick="annulerRecherche()">Annuler la course</button>
+      </div>
+    </div>
+
   </div>
 
   <!-- NAVIGATION -->
@@ -298,7 +367,7 @@
   const supabaseKey = "sb_publishable_543lDfIDZ-lpsP6w9xiO8A_2BRveCmE";
   const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // === INITIALISATION DE LA CARTE (Fond OpenStreetMap classique, assombri par CSS) ===
+  // === INITIALISATION DE LA CARTE ===
   let map;
   let routingLayer = null;
   let departMarker = null;
@@ -306,14 +375,10 @@
 
   function initMap() {
     map = L.map('map-container', { zoomControl: false }).setView([46.603354, 1.888334], 6);
-    
-    // On utilise le fond OpenStreetMap classique (qui ne demande pas de clé API)
-    // Le CSS au-dessus (filter: invert) s'occupe de le rendre sombre proprement.
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 19
     }).addTo(map);
-    
     L.control.zoom({ position: 'topright' }).addTo(map);
   }
 
@@ -363,11 +428,12 @@
     checkAuth();
   }
 
-  // === CALCUL DU TRAJET IMMERSIF ===
+  // === CALCUL DU TRAJET ===
   async function calcRoute() {
     const depart = document.getElementById('depart').value;
     const arrivee = document.getElementById('arrivee').value;
     const btn = document.getElementById('btn-calc');
+    const typeVehicule = document.getElementById('type-vehicule').value;
     
     if(!depart || !arrivee) return;
     
@@ -390,9 +456,13 @@
         const distanceKm = route.routes[0].distance / 1000;
         const dureeMin = route.routes[0].duration / 60;
         
-        const base = 1.50;
-        const prixKm = distanceKm * 1.00;
-        const prixMin = dureeMin * 0.15;
+        // Calcul selon le véhicule (Van plus cher car plus lourd)
+        let multiplier = 1.0;
+        if(typeVehicule === 'van') multiplier = 1.5;
+
+        const base = 1.50 * multiplier;
+        const prixKm = distanceKm * (1.00 * multiplier);
+        const prixMin = dureeMin * (0.15 * multiplier);
         const total = base + prixKm + prixMin;
         const commission = 1.00;
         const chauffeur = total - commission;
@@ -415,7 +485,6 @@
         const arriveeIcon = L.divIcon({ className: 'custom-pin pin-arrivee', html: 'A', iconSize: [30, 30], iconAnchor: [15, 15] });
         arriveeMarker = L.marker([lat2, lon2], { icon: arriveeIcon }).addTo(map);
 
-        // On dessine le tracé avec un trait bien épais et lisse
         routingLayer = L.geoJSON(route.routes[0].geometry, {
             style: { color: '#ffd166', weight: 6, opacity: 1, lineCap: 'round', lineJoin: 'round' }
         }).addTo(map);
@@ -439,18 +508,30 @@
     calcRoute();
   }
 
-  // === RECHERCHE ===
+  // === RECHERCHE / LANCEMENT COURSE ===
   function startSearch() {
     const depart = document.getElementById('depart').value;
     const arrivee = document.getElementById('arrivee').value;
     const prix = document.getElementById('res-total').innerText;
+    const proche = document.getElementById('pour-proche').checked;
 
     document.getElementById('recap-trajet').innerText = `${depart} ➔ ${arrivee}`;
-    document.getElementById('recap-prix').innerText = prix;
+    document.getElementById('recap-prix').innerText = prix + (proche ? " (Pour un proche)" : "");
     
+    // Afficher l'IA au bout de 3 secondes (pour simuler qu'elle analyse le trajet)
+    setTimeout(() => {
+        document.getElementById('ai-bubble').classList.add('show');
+    }, 3000);
+
     showTab('recherche', document.querySelector('.bottom-nav button.active')); 
     document.getElementById('screen-passager').style.display = 'none';
     document.getElementById('screen-recherche').style.display = 'block';
+  }
+
+  function annulerRecherche() {
+    document.getElementById('ai-bubble').classList.remove('show');
+    document.getElementById('screen-recherche').style.display = 'none';
+    document.getElementById('screen-passager').style.display = 'block';
   }
 
   // === NAVIGATION ===
