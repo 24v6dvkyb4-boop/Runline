@@ -150,12 +150,10 @@
 </div>
 
 <script>
-  // === SUPABASE ===
   const supabaseUrl = "https://magtyeybfufywqbevaux.supabase.co";
   const supabaseKey = "sb_publishable_543lDfIDZ-lpsP6w9xiO8A_2BRveCmE";
   const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // === AUTH ===
   async function checkAuth() {
     const { data: { session } } = await client.auth.getSession();
     if (session) {
@@ -202,7 +200,6 @@
     checkAuth();
   }
 
-  // === CALCUL PRIX ===
   function calcPrice() {
     const km = parseFloat(document.getElementById('km').value) || 0;
     const min = parseFloat(document.getElementById('min').value) || 0;
@@ -222,7 +219,6 @@
     document.getElementById('result-box').style.display = 'block';
   }
 
-  // === UPLOAD ===
   async function upload(input, name) {
     const file = input.files[0];
     if (!file) return;
@@ -240,7 +236,7 @@
     }
   }
 
-  // === NAVIGATION INSTANTANÉE ===
+  // LA NAVIGATION CORRIGÉE
   function showTab(tab, btn) {
     document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -248,7 +244,6 @@
     document.getElementById('screen-' + tab).style.display = 'block';
   }
 
-  // === LANCEMENT ===
   checkAuth();
   client.auth.onAuthStateChange(() => checkAuth());
 </script>
