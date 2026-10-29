@@ -3,39 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RunLine</title>
+<title>RunLine — Transport Premium</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
-  body{background:#0a0a0f;color:#fff;display:flex;justify-content:center;min-height:100vh;padding:20px}
-  .container{width:100%;max-width:400px}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Segoe UI',sans-serif}
+  body{background:#0a0a0f;color:#fff;min-height:100vh;display:flex;justify-content:center}
+  .container{width:100%;max-width:420px;padding:20px;position:relative}
   
   /* CONNEXION */
   #auth-screen{display:flex;flex-direction:column;justify-content:center;min-height:90vh}
-  .logo-big{font-size:38px;font-weight:900;text-align:center;margin-bottom:10px;letter-spacing:-1px}
-  .logo-big span{color:#ffd166}
+  .logo-big{font-size:38px;font-weight:900;text-align:center;margin-bottom:10px;letter-spacing:-1.5px}
+  .logo-big span{background:linear-gradient(135deg,#ffd166,#ff9f1c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   .subtitle{text-align:center;color:#8b8b9e;margin-bottom:40px;font-size:14px}
-  .btn{width:100%;padding:16px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;border:none;display:flex;align-items:center;justify-content:center;gap:10px}
+  .btn{width:100%;padding:16px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;border:none;transition:.2s;display:flex;align-items:center;justify-content:center;gap:10px}
   .btn-google{background:#fff;color:#1a1a2e}
   .btn-google img{width:20px}
   .btn-primary{background:linear-gradient(135deg,#ffd166,#ff9f1c);color:#1a1a2e}
   .btn-outline{background:transparent;color:#fff;border:1px solid #26263a}
-  .input-group{background:#16161f;border:1px solid #26263a;border-radius:12px;padding:14px;margin-bottom:12px}
-  .input-group label{font-size:10px;color:#8b8b9e;text-transform:uppercase;font-weight:600}
+  .input-group{background:#16161f;border:1px solid #26263a;border-radius:12px;padding:14px;margin-bottom:12px;transition:.2s}
+  .input-group:focus-within{border-color:#ffd166}
+  .input-group label{font-size:10px;color:#8b8b9e;text-transform:uppercase;letter-spacing:1px;font-weight:600}
   .input-group input{background:none;border:none;outline:none;color:#fff;font-size:14px;width:100%;margin-top:5px}
-  .divider{display:flex;align-items:center;gap:10px;margin:24px 0;color:#4a4a5e;font-size:11px;text-transform:uppercase}
+  .divider{display:flex;align-items:center;gap:10px;margin:24px 0;color:#4a4a5e;font-size:11px;text-transform:uppercase;letter-spacing:1px}
   .divider::before,.divider::after{content:'';flex:1;height:1px;background:#26263a}
 
-  /* APP */
+  /* APPLICATION */
   #app-screen{display:none;padding-bottom:80px}
   .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-  .header .logo{font-size:22px;font-weight:900}
-  .header .logo span{color:#ffd166}
+  .header .logo{font-size:22px;font-weight:900;letter-spacing:-1px}
+  .header .logo span{background:linear-gradient(135deg,#ffd166,#ff9f1c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  
+  /* HERO CARD (Le gros bloc doré) */
+  .hero{background:linear-gradient(135deg,#ffd166,#ff9f1c);color:#1a1a2e;border-radius:20px;padding:22px;margin-bottom:20px;position:relative;overflow:hidden}
+  .hero::after{content:'🚗';position:absolute;right:16px;top:16px;font-size:48px;opacity:.15}
+  .hero h2{font-size:18px;font-weight:800;margin-bottom:6px}
+  .hero p{font-size:13px;opacity:.85;line-height:1.4}
+  .hero .big{font-size:42px;font-weight:900;margin-top:14px;line-height:1}
+  .hero .big small{font-size:14px;font-weight:600;opacity:.7}
+
+  .secure-bar{display:flex;align-items:center;gap:6px;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);border-radius:8px;padding:8px 12px;font-size:10px;color:#22d3ee;margin-bottom:20px;font-weight:600;letter-spacing:.3px}
+  .secure-bar::before{content:'🔒';font-size:11px}
+  
   .trip-card{background:#16161f;border:1px solid #26263a;border-radius:16px;padding:20px;margin-bottom:15px}
-  .trip-card h3{font-size:16px;margin-bottom:15px}
+  .trip-card h3{font-size:16px;margin-bottom:15px;color:#fff}
+  
   .result-box{background:rgba(255,209,102,.05);border:1px solid rgba(255,209,102,.2);border-radius:12px;padding:15px;margin-top:15px;display:none}
   .res-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;color:#c4c4d4}
   .res-row.total{font-size:18px;font-weight:800;color:#ffd166;border-top:1px solid #26263a;padding-top:10px;margin-top:10px}
+  
+  /* STATS */
+  .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:20px 0}
+  .stat{background:#16161f;border:1px solid #26263a;border-radius:12px;padding:14px;text-align:center}
+  .stat b{display:block;font-size:18px;color:#ffd166;font-weight:800}
+  .stat span{font-size:10px;color:#8b8b9e;text-transform:uppercase;letter-spacing:.5px}
+
+  /* DOCS */
+  .docs{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+  .doc{background:#16161f;border:1px solid #26263a;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;transition:.2s;cursor:pointer}
+  .doc:hover{border-color:#ffd166}
+  .doc-icon{width:36px;height:36px;border-radius:9px;background:rgba(255,209,102,.1);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .doc-info{flex:1}
+  .doc-info strong{display:block;font-size:13px;color:#fff}
+  .doc-info span{font-size:11px;color:#8b8b9e}
+  .doc-status{font-size:16px;font-weight:700}
 
   /* NAV */
   .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#16161f;border-top:1px solid #26263a;display:none;justify-content:space-around;padding:12px 0;max-width:400px;margin:0 auto;z-index:100}
@@ -50,6 +80,7 @@
 
 <div class="container">
 
+  <!-- CONNEXION -->
   <div id="auth-screen">
     <div class="logo-big">RUN<span>LINE</span></div>
     <div class="subtitle">Le transport premium au prix mini</div>
@@ -72,13 +103,23 @@
     </div>
   </div>
 
+  <!-- APPLICATION -->
   <div id="app-screen">
     <div class="header">
       <div class="logo">RUN<span>LINE</span></div>
       <button class="btn-outline" style="width:auto;padding:8px 12px;font-size:12px;margin:0" onclick="signOut()">Déconnexion</button>
     </div>
 
+    <!-- PASSAGER -->
     <div class="screen-content" id="screen-passager" style="display:block;">
+      <div class="secure-bar">Paiement sécurisé · Chauffeurs vérifiés · Trajet assuré</div>
+      
+      <div class="hero">
+        <h2>Votre trajet, votre prix</h2>
+        <p>Commission fixe. Zéro surprise. Chauffeurs certifiés.</p>
+        <div class="big">1€<small> /course</small></div>
+      </div>
+
       <div class="trip-card">
         <h3>Où allez-vous ?</h3>
         <div class="input-group"><label>Départ</label><input id="depart" value="Tour Eiffel"></div>
@@ -88,6 +129,7 @@
           <div class="input-group"><label>Durée (min)</label><input id="min" type="number" value="15"></div>
         </div>
         <button class="btn btn-primary" style="margin-top:10px" onclick="calcPrice()">Estimer le prix</button>
+        
         <div class="result-box" id="result-box">
           <div class="res-row"><span>Prise en charge</span><b>1,50€</b></div>
           <div class="res-row"><span id="lbl-km">Distance</span><b id="res-km">0,00€</b></div>
@@ -97,24 +139,51 @@
           <div class="res-row" style="font-size:11px"><span>Le chauffeur reçoit</span><b id="res-chauffeur">0,00€</b></div>
         </div>
       </div>
-    </div>
 
-    <div class="screen-content" id="screen-chauffeur">
-      <div class="trip-card">
-        <h3>Vos documents</h3>
-        <label class="doc" for="doc1" style="background:#0f0f16;border:1px solid #26263a;border-radius:10px;padding:14px;display:flex;justify-content:space-between;margin-bottom:10px;cursor:pointer">
-          <span>Permis de conduire</span>
-          <span id="s1">⬆️</span>
-          <input type="file" id="doc1" style="display:none" onchange="upload(this, 'Permis')">
-        </label>
-        <label class="doc" for="doc2" style="background:#0f0f16;border:1px solid #26263a;border-radius:10px;padding:14px;display:flex;justify-content:space-between;cursor:pointer">
-          <span>Carte VTC</span>
-          <span id="s2">⬆️</span>
-          <input type="file" id="doc2" style="display:none" onchange="upload(this, 'VTC')">
-        </label>
+      <div class="stats">
+        <div class="stat"><b>1€</b><span>Commission</span></div>
+        <div class="stat"><b>4,99€</b><span>Abo/sem</span></div>
+        <div class="stat"><b>0€</b><span>Passager</span></div>
       </div>
     </div>
 
+    <!-- CHAUFFEUR -->
+    <div class="screen-content" id="screen-chauffeur">
+      <div class="secure-bar">Documents chiffrés AES-256 · Vérification manuelle</div>
+      
+      <div class="hero" style="padding:18px;">
+        <h2>Dossier de vérification</h2>
+        <p>Tous les documents sont contrôlés manuellement sous 48h.</p>
+      </div>
+
+      <div class="trip-card">
+        <h3>Documents requis</h3>
+        <div class="docs">
+          <label class="doc" for="doc1">
+            <div class="doc-icon">🪪</div>
+            <div class="doc-info"><strong>Permis de conduire</strong><span id="status-permis">Cliquez pour uploader</span></div>
+            <div class="doc-status" id="s1">⬆️</div>
+            <input type="file" id="doc1" style="display:none" onchange="upload(this, 'Permis')">
+          </label>
+          
+          <label class="doc" for="doc2">
+            <div class="doc-icon">🚖</div>
+            <div class="doc-info"><strong>Carte VTC</strong><span id="status-vtc">Cliquez pour uploader</span></div>
+            <div class="doc-status" id="s2">⬆️</div>
+            <input type="file" id="doc2" style="display:none" onchange="upload(this, 'VTC')">
+          </label>
+
+          <label class="doc" for="doc3">
+            <div class="doc-icon">🛡️</div>
+            <div class="doc-info"><strong>Assurance professionnelle</strong><span id="status-assurance">Cliquez pour uploader</span></div>
+            <div class="doc-status" id="s3">⬆️</div>
+            <input type="file" id="doc3" style="display:none" onchange="upload(this, 'Assurance')">
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFIL -->
     <div class="screen-content" id="screen-profil">
       <div class="trip-card">
         <h3>Mon profil</h3>
@@ -123,6 +192,7 @@
     </div>
   </div>
 
+  <!-- NAV -->
   <div class="bottom-nav" id="bottom-nav">
     <button class="active" onclick="showTab('passager', this)"><span>🚗</span>Passager</button>
     <button onclick="showTab('chauffeur', this)"><span>🛡️</span>Chauffeur</button>
@@ -206,14 +276,23 @@
     if (!file) return;
     const { data: { user } } = await client.auth.getUser();
     if (!user) return alert("Connectez-vous d'abord !");
-    document.getElementById('s' + (name === 'Permis' ? '1' : '2')).innerText = "⏳";
+    
+    const statusSpan = document.getElementById('status-' + name.toLowerCase().replace(' ', ''));
+    const iconSpan = document.getElementById('s' + (name === 'Permis' ? '1' : name === 'VTC' ? '2' : '3'));
+    
+    if(statusSpan) statusSpan.innerText = "Envoi en cours...";
+    if(iconSpan) iconSpan.innerText = "⏳";
+
     const fileName = user.id + "/" + name + "-" + Date.now();
     const { error } = await client.storage.from('documents').upload(fileName, file);
+
     if (error) {
       alert("Erreur : " + error.message);
-      document.getElementById('s' + (name === 'Permis' ? '1' : '2')).innerText = "❌";
+      if(statusSpan) statusSpan.innerText = "Erreur";
+      if(iconSpan) iconSpan.innerText = "❌";
     } else {
-      document.getElementById('s' + (name === 'Permis' ? '1' : '2')).innerText = "✅";
+      if(statusSpan) statusSpan.innerText = "Envoyé avec succès !";
+      if(iconSpan) { iconSpan.innerText = "✅"; iconSpan.style.color = "#22d3ee"; }
       alert("Document envoyé avec succès !");
     }
   }
