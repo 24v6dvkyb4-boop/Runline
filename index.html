@@ -3,48 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RunLine — Transport sécurisé</title>
+<title>RunLine</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Segoe UI',sans-serif}
-  body{background:#0a0a0f;color:#fff;min-height:100vh;display:flex;justify-content:center}
-  .container{width:100%;max-width:400px;padding:20px;position:relative}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
+  body{background:#0a0a0f;color:#fff;display:flex;justify-content:center;min-height:100vh;padding:20px}
+  .container{width:100%;max-width:400px}
   
   /* CONNEXION */
   #auth-screen{display:flex;flex-direction:column;justify-content:center;min-height:90vh}
   .logo-big{font-size:38px;font-weight:900;text-align:center;margin-bottom:10px;letter-spacing:-1px}
   .logo-big span{color:#ffd166}
   .subtitle{text-align:center;color:#8b8b9e;margin-bottom:40px;font-size:14px}
-  .btn{width:100%;padding:16px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;border:none;transition:.2s;display:flex;align-items:center;justify-content:center;gap:10px}
+  .btn{width:100%;padding:16px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;border:none;display:flex;align-items:center;justify-content:center;gap:10px}
   .btn-google{background:#fff;color:#1a1a2e}
   .btn-google img{width:20px}
   .btn-primary{background:linear-gradient(135deg,#ffd166,#ff9f1c);color:#1a1a2e}
   .btn-outline{background:transparent;color:#fff;border:1px solid #26263a}
-  .input-group{background:#16161f;border:1px solid #26263a;border-radius:12px;padding:14px;margin-bottom:12px;transition:.2s}
-  .input-group:focus-within{border-color:#ffd166}
-  .input-group label{font-size:10px;color:#8b8b9e;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+  .input-group{background:#16161f;border:1px solid #26263a;border-radius:12px;padding:14px;margin-bottom:12px}
+  .input-group label{font-size:10px;color:#8b8b9e;text-transform:uppercase;font-weight:600}
   .input-group input{background:none;border:none;outline:none;color:#fff;font-size:14px;width:100%;margin-top:5px}
-  .divider{display:flex;align-items:center;gap:10px;margin:24px 0;color:#4a4a5e;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+  .divider{display:flex;align-items:center;gap:10px;margin:24px 0;color:#4a4a5e;font-size:11px;text-transform:uppercase}
   .divider::before,.divider::after{content:'';flex:1;height:1px;background:#26263a}
 
-  /* APPLICATION */
+  /* APP */
   #app-screen{display:none;padding-bottom:80px}
   .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-  .header .logo{font-size:22px;font-weight:900;letter-spacing:-1px}
+  .header .logo{font-size:22px;font-weight:900}
   .header .logo span{color:#ffd166}
-  
-  .map-box{height:200px;background:radial-gradient(circle, #1a1a2e, #0f0f16);border-radius:20px;border:1px solid #26263a;margin-bottom:20px;display:flex;align-items:center;justify-content:center;color:#4a4a5e;font-size:13px;font-weight:600}
-  
   .trip-card{background:#16161f;border:1px solid #26263a;border-radius:16px;padding:20px;margin-bottom:15px}
-  .trip-card h3{font-size:16px;margin-bottom:15px;color:#fff}
-  
+  .trip-card h3{font-size:16px;margin-bottom:15px}
   .result-box{background:rgba(255,209,102,.05);border:1px solid rgba(255,209,102,.2);border-radius:12px;padding:15px;margin-top:15px;display:none}
   .res-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;color:#c4c4d4}
   .res-row.total{font-size:18px;font-weight:800;color:#ffd166;border-top:1px solid #26263a;padding-top:10px;margin-top:10px}
 
-  /* BARRE DE NAVIGATION */
+  /* NAV */
   .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#16161f;border-top:1px solid #26263a;display:none;justify-content:space-around;padding:12px 0;max-width:400px;margin:0 auto;z-index:100}
-  .bottom-nav button{background:none;border:none;color:#4a4a5e;font-size:11px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:.2s}
+  .bottom-nav button{background:none;border:none;color:#4a4a5e;font-size:11px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
   .bottom-nav button.active{color:#ffd166}
   .bottom-nav button span{font-size:18px}
 
@@ -55,53 +50,44 @@
 
 <div class="container">
 
-  <!-- CONNEXION -->
   <div id="auth-screen">
     <div class="logo-big">RUN<span>LINE</span></div>
     <div class="subtitle">Le transport premium au prix mini</div>
-
     <button class="btn btn-google" onclick="signInWithGoogle()">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google"> Continuer avec Google
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"> Continuer avec Google
     </button>
-
     <div class="divider">ou par email</div>
-
     <div id="login-form">
-      <div class="input-group"><label>Email</label><input type="email" id="loginEmail" placeholder="vous@exemple.fr"></div>
-      <div class="input-group"><label>Mot de passe</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+      <div class="input-group"><label>Email</label><input type="email" id="loginEmail"></div>
+      <div class="input-group"><label>Mot de passe</label><input type="password" id="loginPassword"></div>
       <button class="btn btn-primary" onclick="signIn()">Se connecter</button>
       <button class="btn btn-outline" onclick="toggleAuth('signup')">Créer un compte</button>
     </div>
-
     <div id="signup-form" style="display:none">
-      <div class="input-group"><label>Nom complet</label><input id="signupName" placeholder="Jean Dupont"></div>
-      <div class="input-group"><label>Email</label><input type="email" id="signupEmail" placeholder="vous@exemple.fr"></div>
-      <div class="input-group"><label>Mot de passe</label><input type="password" id="signupPassword" placeholder="Min. 6 caractères"></div>
+      <div class="input-group"><label>Nom</label><input id="signupName"></div>
+      <div class="input-group"><label>Email</label><input type="email" id="signupEmail"></div>
+      <div class="input-group"><label>Mot de passe</label><input type="password" id="signupPassword"></div>
       <button class="btn btn-primary" onclick="signUp()">Créer mon compte</button>
       <button class="btn btn-outline" onclick="toggleAuth('login')">J'ai déjà un compte</button>
     </div>
   </div>
 
-  <!-- APPLICATION -->
   <div id="app-screen">
     <div class="header">
       <div class="logo">RUN<span>LINE</span></div>
       <button class="btn-outline" style="width:auto;padding:8px 12px;font-size:12px;margin:0" onclick="signOut()">Déconnexion</button>
     </div>
 
-    <!-- ÉCRAN PASSAGER -->
     <div class="screen-content" id="screen-passager" style="display:block;">
-      <div class="map-box">🗺️ Carte Google Maps (bientôt disponible)</div>
       <div class="trip-card">
         <h3>Où allez-vous ?</h3>
-        <div class="input-group"><label>Départ</label><input id="depart" value="Tour Eiffel, Paris"></div>
-        <div class="input-group"><label>Arrivée</label><input id="arrivee" value="Gare du Nord, Paris"></div>
+        <div class="input-group"><label>Départ</label><input id="depart" value="Tour Eiffel"></div>
+        <div class="input-group"><label>Arrivée</label><input id="arrivee" value="Gare du Nord"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <div class="input-group"><label>Distance (km)</label><input id="km" type="number" value="5"></div>
           <div class="input-group"><label>Durée (min)</label><input id="min" type="number" value="15"></div>
         </div>
         <button class="btn btn-primary" style="margin-top:10px" onclick="calcPrice()">Estimer le prix</button>
-        
         <div class="result-box" id="result-box">
           <div class="res-row"><span>Prise en charge</span><b>1,50€</b></div>
           <div class="res-row"><span id="lbl-km">Distance</span><b id="res-km">0,00€</b></div>
@@ -113,11 +99,9 @@
       </div>
     </div>
 
-    <!-- ÉCRAN CHAUFFEUR -->
     <div class="screen-content" id="screen-chauffeur">
       <div class="trip-card">
         <h3>Vos documents</h3>
-        <p style="color:#8b8b9e;font-size:13px;margin-bottom:15px">Ajoutez vos documents pour être validé.</p>
         <label class="doc" for="doc1" style="background:#0f0f16;border:1px solid #26263a;border-radius:10px;padding:14px;display:flex;justify-content:space-between;margin-bottom:10px;cursor:pointer">
           <span>Permis de conduire</span>
           <span id="s1">⬆️</span>
@@ -131,7 +115,6 @@
       </div>
     </div>
 
-    <!-- ÉCRAN PROFIL -->
     <div class="screen-content" id="screen-profil">
       <div class="trip-card">
         <h3>Mon profil</h3>
@@ -140,7 +123,6 @@
     </div>
   </div>
 
-  <!-- BARRE DE NAVIGATION -->
   <div class="bottom-nav" id="bottom-nav">
     <button class="active" onclick="showTab('passager', this)"><span>🚗</span>Passager</button>
     <button onclick="showTab('chauffeur', this)"><span>🛡️</span>Chauffeur</button>
@@ -236,7 +218,6 @@
     }
   }
 
-  // LA NAVIGATION CORRIGÉE
   function showTab(tab, btn) {
     document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
