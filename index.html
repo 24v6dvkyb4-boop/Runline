@@ -398,17 +398,19 @@
 </div>
 
 <script>
+  // === CONFIGURATION SUPABASE ===
   const supabaseUrl = "https://magtyeybfufywqbevaux.supabase.co";
   const supabaseKey = "sb_publishable_543lDfIDZ-lpsP6w9xiO8A_2BRveCmE";
   const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // === INITIALISATION DE LA CARTE ===
+  // === VARIABLES GLOBALES ===
   let map;
   let routingLayer = null;
   let departMarker = null;
   let arriveeMarker = null;
   let selectedPaymentMethod = 'cb';
 
+  // === INITIALISATION DE LA CARTE ===
   function initMap() {
     map = L.map('map-container', { zoomControl: false }).setView([46.603354, 1.888334], 6);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -418,7 +420,7 @@
     L.control.zoom({ position: 'topright' }).addTo(map);
   }
 
-  // === AUTHENTIFICATION ===
+  // === AUTHENTIFICATION SUPABASE ===
   async function checkAuth() {
     const { data: { session } } = await client.auth.getSession();
     if (session) {
@@ -435,15 +437,17 @@
       document.getElementById('main-footer').style.display = 'none';
     }
   }
-  
+
   function toggleAuth(form) {
     document.getElementById('login-form').style.display = (form === 'login') ? 'block' : 'none';
     document.getElementById('signup-form').style.display = (form === 'signup') ? 'block' : 'none';
   }
+
   async function signInWithGoogle() {
     const { error } = await client.auth.signInWithOAuth({ provider: 'google' });
     if (error) alert(error.message);
   }
+
   async function signUp() {
     const email = document.getElementById('signupEmail').value;
     const password = document.getElementById('signupPassword').value;
@@ -452,6 +456,7 @@
     if (error) alert("Erreur : " + error.message);
     else alert("Compte créé ! Vérifiez vos mails.");
   }
+
   async function signIn() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
@@ -459,10 +464,194 @@
     if (error) alert("Erreur : " + error.message);
     else checkAuth();
   }
+
   async function signOut() {
     await client.auth.signOut();
     checkAuth();
   }
 
-  // === CALCUL DU TRAJET ===
- 
+  // === CALCUL DU TRAJET (CARTE) ===
+  async function calcRoute() {
+    const depart = document.getElementById('depart').value;
+    const arrivee = document.getElementById('arrivee').value;
+    const btn = document.getElementById('btn-calc');
+    const typeVehicule = document.getElementById('type-vehicule').value;
+    
+    if(!depart || !arrivee) return;
+    
+    btn.innerHTML = 'Estimation... <div class="spinner"></div>';
+    btn.disabled = true;
+
+    try {
+        const geoDepart = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${depart}`).then(r => r.json());
+        const geoArrivee = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${arrivee}`).then(r => r.json());
+        
+        if(geoDepart.length === 0 || geoArrivee.length === 0) throw new Error("Ville introuvable");
+
+        const lat1 = geoDepart[0].lat; const lon1 = geoDepart[0].lon;
+        const lat2 = geoArrivee[0].lat; const lon2 = geoArrivee[0].lon;
+
+        const route = await fetch(`https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`).then(r => r.json());
+        
+        if(route.code !== 'Ok') throw new Error("Erreur de trajet");
+
+        const distanceKm = route.routes[0].distance / 1000;
+        const dureeMin = route.routes[0].duration / 60;
+        
+        let multiplier = 1.0;
+        if(typeVehicule === 'van') multiplier = 1.5;
+
+        const base = 1.50 * multiplier;
+        const prixKm = distanceKm * (1.00 * multiplier);
+        const prixMin = dureeMin * (0.15 * multiplier);
+        const total = base + prixKm + prixMin;
+        const commission = 1.00;
+        const chauffeur = total - commission;
+
+        document.getElementById('res-km').innerText = distanceKm.toFixed(1) + " km";
+        document.getElementById('res-min').innerText = Math.round(dureeMin) + " min";
+        document.getElementById('res-total').innerText = total.toFixed(2).replace('.', ',') + '€';
+        document.getElementById('res-chauffeur').innerText = chauffeur.toFixed(2).replace('.', ',') + '€';
+        
+        document.getElementById('result-box').style.display = 'block';
+        document.getElementById('btn-commander').style.display = 'block';
+
+        if (routingLayer) map.removeLayer(routingLayer);
+        if (departMarker) map.removeLayer(departMarker);
+        if (arriveeMarker) map.removeLayer(arriveeMarker);
+
+        const departIcon = L.divIcon({ className: 'custom-pin pin-depart', html: 'D', iconSize: [30, 30], iconAnchor: [15, 15] });
+        departMarker = L.marker([lat1, lon1], { icon: departIcon }).addTo(map);
+
+        const arriveeIcon = L.divIcon({ className: 'custom-pin pin-arrivee', html: 'A', iconSize: [30, 30], iconAnchor: [15, 15] });
+        arriveeMarker = L.marker([lat2, lon2], { icon: arriveeIcon }).addTo(map);
+
+        routingLayer = L.geoJSON(route.routes[0].geometry, {
+            style: { color: '#ffd166', weight: 6, opacity: 1, lineCap: 'round', lineJoin: 'round' }
+        }).addTo(map);
+        
+        map.fitBounds(routingLayer.getBounds(), { padding: [30, 30] });
+
+    } catch (error) {
+        console.error(error);
+        document.getElementById('result-box').style.display = 'none';
+        document.getElementById('btn-commander').style.display = 'none';
+    } finally {
+        btn.innerHTML = 'Estimer le prix';
+        btn.disabled = false;
+    }
+  }
+
+  // === FAVORIS ===
+  function setFav(dest, depart) {
+    document.getElementById('arrivee').value = dest;
+    document.getElementById('depart').value = depart;
+    calcRoute();
+  }
+
+  // === PAIEMENT ET COMMANDE ===
+  function openPaymentModal() {
+    document.getElementById('payment-modal').style.display = 'flex';
+  }
+
+  function closePaymentModal() {
+    document.getElementById('payment-modal').style.display = 'none';
+  }
+
+  function selectPay(element, method) {
+    document.querySelectorAll('.pay-method').forEach(el => el.classList.remove('active'));
+    element.classList.add('active');
+    selectedPaymentMethod = method;
+  }
+
+  function confirmPayment() {
+    closePaymentModal();
+    startSearch();
+  }
+
+  // === RECHERCHE DU CHAUFFEUR ===
+  function startSearch() {
+    const depart = document.getElementById('depart').value;
+    const arrivee = document.getElementById('arrivee').value;
+    const prix = document.getElementById('res-total').innerText;
+    
+    document.getElementById('recap-trajet').innerText = `${depart} ➔ ${arrivee}`;
+    document.getElementById('recap-prix').innerText = prix;
+
+    showTab('recherche', document.querySelector('.bottom-nav button.active')); 
+    document.getElementById('screen-passager').style.display = 'none';
+    document.getElementById('screen-recherche').style.display = 'block';
+
+    // Afficher l'IA au bout de 3 secondes
+    setTimeout(() => {
+        document.getElementById('ai-bubble').classList.add('show');
+    }, 3000);
+  }
+
+  function annulerRecherche() {
+    document.getElementById('ai-bubble').classList.remove('show');
+    document.getElementById('screen-recherche').style.display = 'none';
+    document.getElementById('screen-passager').style.display = 'block';
+  }
+
+  // === NAVIGATION ===
+  function showTab(tab, btn) {
+    if(btn) {
+      document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    document.querySelectorAll('.screen-content').forEach(s => s.style.display = 'none');
+    document.getElementById('screen-' + tab).style.display = 'block';
+    
+    if(tab === 'passager' && map) {
+        setTimeout(() => map.invalidateSize(), 100);
+    }
+  }
+
+  // === STATUT CHAUFFEUR ===
+  function toggleStatus() {
+    const btn = document.getElementById('status-btn');
+    if (btn.classList.contains('offline')) {
+      btn.classList.remove('offline');
+      btn.classList.add('online');
+      btn.innerText = "En ligne";
+    } else {
+      btn.classList.remove('online');
+      btn.classList.add('offline');
+      btn.innerText = "Hors ligne";
+    }
+  }
+
+  // === UPLOAD DOCUMENTS ===
+  async function upload(input, name) {
+    const file = input.files[0];
+    if (!file) return;
+    const { data: { user } } = await client.auth.getUser();
+    if (!user) return alert("Connectez-vous d'abord !");
+    
+    const statusSpan = document.getElementById('status-' + name.toLowerCase().replace(' ', ''));
+    const iconSpan = document.getElementById('s' + (name === 'Permis' ? '1' : name === 'VTC' ? '2' : '3'));
+    
+    if(statusSpan) statusSpan.innerText = "Envoi en cours...";
+    if(iconSpan) iconSpan.innerText = "⏳";
+
+    const fileName = user.id + "/" + name + "-" + Date.now();
+    const { error } = await client.storage.from('documents').upload(fileName, file);
+
+    if (error) {
+      alert("Erreur : " + error.message);
+      if(statusSpan) statusSpan.innerText = "Erreur";
+      if(iconSpan) iconSpan.innerText = "❌";
+    } else {
+      if(statusSpan) statusSpan.innerText = "Envoyé avec succès !";
+      if(iconSpan) { iconSpan.innerText = "✅"; iconSpan.style.color = "#22d3ee"; }
+      alert("Document envoyé avec succès !");
+    }
+  }
+
+  // === LANCEMENT ===
+  checkAuth();
+  client.auth.onAuthStateChange(() => checkAuth());
+</script>
+</body>
+</html>
