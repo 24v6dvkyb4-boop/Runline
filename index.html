@@ -35,9 +35,10 @@
   .header .logo{font-size:22px;font-weight:900;letter-spacing:-1px}
   .header .logo span{background:linear-gradient(135deg,#ffd166,#ff9f1c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   
-  /* CARTE */
+  /* CARTE (CORRIGÉE) */
   #map-container{height:250px;border-radius:20px;border:1px solid #26263a;margin-bottom:20px;overflow:hidden;position:relative;z-index:1; background:#16161f;}
-  .leaflet-container { background: #16161f !important; }
+  /* Filtre pour assombrir la carte sans avoir de message "API KEY REQUIRED" */
+  .leaflet-layer { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
   
   /* HERO CARD */
   .hero{background:linear-gradient(135deg,#ffd166,#ff9f1c);color:#1a1a2e;border-radius:20px;padding:22px;margin-bottom:20px;position:relative;overflow:hidden}
@@ -104,9 +105,12 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* MARQUEURS PERSONNALISÉS */
-  .custom-pin { display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; color: white; font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+  .custom-pin { display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; color: white; font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000 !important; }
   .pin-depart { background: #22d3ee; width: 30px; height: 30px; }
   .pin-arrivee { background: #ffd166; width: 30px; height: 30px; color: #1a1a2e; }
+  
+  /* Cacher l'attribution trop grosse de Leaflet */
+  .leaflet-control-attribution { font-size: 8px !important; background: rgba(0,0,0,0.5) !important; color: #fff !important; }
 </style>
 </head>
 <body>
@@ -294,7 +298,7 @@
   const supabaseKey = "sb_publishable_543lDfIDZ-lpsP6w9xiO8A_2BRveCmE";
   const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // === INITIALISATION DE LA CARTE EN MODE SOMBRE ===
+  // === INITIALISATION DE LA CARTE (Fond OpenStreetMap classique, assombri par CSS) ===
   let map;
   let routingLayer = null;
   let departMarker = null;
@@ -302,11 +306,14 @@
 
   function initMap() {
     map = L.map('map-container', { zoomControl: false }).setView([46.603354, 1.888334], 6);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
-      subdomains: 'abcd',
-      maxZoom: 20
+    
+    // On utilise le fond OpenStreetMap classique (qui ne demande pas de clé API)
+    // Le CSS au-dessus (filter: invert) s'occupe de le rendre sombre proprement.
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19
     }).addTo(map);
+    
     L.control.zoom({ position: 'topright' }).addTo(map);
   }
 
@@ -408,8 +415,9 @@
         const arriveeIcon = L.divIcon({ className: 'custom-pin pin-arrivee', html: 'A', iconSize: [30, 30], iconAnchor: [15, 15] });
         arriveeMarker = L.marker([lat2, lon2], { icon: arriveeIcon }).addTo(map);
 
+        // On dessine le tracé avec un trait bien épais et lisse
         routingLayer = L.geoJSON(route.routes[0].geometry, {
-            style: { color: '#ffd166', weight: 6, opacity: 0.9 }
+            style: { color: '#ffd166', weight: 6, opacity: 1, lineCap: 'round', lineJoin: 'round' }
         }).addTo(map);
         
         map.fitBounds(routingLayer.getBounds(), { padding: [30, 30] });
