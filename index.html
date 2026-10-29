@@ -29,7 +29,7 @@
   .divider{display:flex;align-items:center;gap:10px;margin:24px 0;color:#4a4a5e;font-size:11px;text-transform:uppercase;letter-spacing:1px}
   .divider::before,.divider::after{content:'';flex:1;height:1px;background:#26263a}
 
-  /* CHOIX DU RÔLE À L'INSCRIPTION */
+  /* CHOIX DU RÔLE */
   .role-select{display:flex;gap:10px;margin-bottom:15px}
   .role-btn{flex:1;background:#16161f;border:2px solid #26263a;border-radius:12px;padding:15px;text-align:center;cursor:pointer;transition:.2s}
   .role-btn.active{border-color:#ffd166;background:rgba(255,209,102,0.1)}
@@ -42,8 +42,8 @@
   .header .logo{font-size:22px;font-weight:900;letter-spacing:-1px}
   .header .logo span{background:linear-gradient(135deg,#ffd166,#ff9f1c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   
-  /* CARTE */
-  #map-container{height:220px;border-radius:20px;border:1px solid #26263a;margin-bottom:20px;overflow:hidden;position:relative;z-index:1; background:#16161f;}
+  /* CARTE (Cachée par défaut) */
+  #map-container{height:220px;border-radius:20px;border:1px solid #26263a;margin-bottom:20px;overflow:hidden;position:relative;z-index:1; background:#16161f; display:none;}
   .leaflet-layer { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
   
   /* HERO CARD */
@@ -101,7 +101,7 @@
   .sec-btn:active { opacity: 0.7; }
 
   /* CALENDRIER */
-  .calendar-box{background:#16161f;border:1px solid #26263a;border-radius:16px;padding:15px;margin-bottom:15px}
+  .calendar-box{background:#16161f;border:1px solid #26263a;border-radius:16px;padding:15px;}
   .calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:700}
   .calendar-header button{background:none;border:none;color:#ffd166;font-size:18px;cursor:pointer}
   .calendar-grid{display:grid;grid-template-columns:repeat(7, 1fr);gap:5px;text-align:center}
@@ -109,9 +109,6 @@
   .cal-day:hover{background:#26263a}
   .cal-day.active{background:#ffd166;color:#1a1a2e;font-weight:700}
   .cal-day.empty{visibility:hidden}
-  .cal-time-selector{display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;margin-top:15px}
-  .time-slot{background:#0f0f16;border:1px solid #26263a;padding:8px;border-radius:8px;text-align:center;font-size:12px;cursor:pointer}
-  .time-slot.active{background:#ffd166;color:#1a1a2e;border-color:#ffd166;font-weight:700}
 
   /* MODAL DE PAIEMENT */
   .payment-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(5px); }
@@ -233,19 +230,57 @@
           </select>
         </div>
 
-        <!-- CALENDRIER INTERACTIF -->
-        <div class="calendar-box">
-          <div style="font-size:10px;color:#8b8b9e;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:10px;">Quand ?</div>
-          <div class="calendar-header">
-            <button onclick="changeMonth(-1)">◀</button>
-            <span id="month-label"></span>
-            <button onclick="changeMonth(1)">▶</button>
-          </div>
-          <div class="calendar-grid" id="calendar-grid">
-            <!-- Jours générés par JS -->
-          </div>
-          <div class="cal-time-selector" id="time-selector">
-            <!-- Heures générées par JS -->
+        <!-- BOUTON QUAND (Fermé par défaut) -->
+        <button class="btn btn-outline" style="margin-bottom:15px;" onclick="toggleCalendar()">
+          📅 <span id="calendar-btn-text">Choisir une date et une heure</span>
+        </button>
+
+        <!-- CALENDRIER (Caché par défaut) -->
+        <div id="calendar-wrapper" style="display:none; margin-bottom:15px;">
+          <div class="calendar-box">
+            <div class="calendar-header">
+              <button onclick="changeMonth(-1)">◀</button>
+              <span id="month-label"></span>
+              <button onclick="changeMonth(1)">▶</button>
+            </div>
+            <div class="calendar-grid" id="calendar-grid"></div>
+            <div style="margin-top:10px; color:#8b8b9e; font-size:11px;">Heure :</div>
+            <select id="time-selector" style="width:100%; padding:10px; margin-top:5px; background:#16161f; color:#fff; border:1px solid #26263a; border-radius:8px;" onchange="selectedTime = this.value; updateCalendarButtonText();">
+              <option value="Maintenant">Maintenant</option>
+              <option value="07:00">07:00</option>
+              <option value="07:30">07:30</option>
+              <option value="08:00">08:00</option>
+              <option value="08:30">08:30</option>
+              <option value="09:00">09:00</option>
+              <option value="09:30">09:30</option>
+              <option value="10:00">10:00</option>
+              <option value="10:30">10:30</option>
+              <option value="11:00">11:00</option>
+              <option value="11:30">11:30</option>
+              <option value="12:00">12:00</option>
+              <option value="12:30">12:30</option>
+              <option value="13:00">13:00</option>
+              <option value="13:30">13:30</option>
+              <option value="14:00">14:00</option>
+              <option value="14:30">14:30</option>
+              <option value="15:00">15:00</option>
+              <option value="15:30">15:30</option>
+              <option value="16:00">16:00</option>
+              <option value="16:30">16:30</option>
+              <option value="17:00">17:00</option>
+              <option value="17:30">17:30</option>
+              <option value="18:00">18:00</option>
+              <option value="18:30">18:30</option>
+              <option value="19:00">19:00</option>
+              <option value="19:30">19:30</option>
+              <option value="20:00">20:00</option>
+              <option value="20:30">20:30</option>
+              <option value="21:00">21:00</option>
+              <option value="21:30">21:30</option>
+              <option value="22:00">22:00</option>
+              <option value="22:30">22:30</option>
+              <option value="23:00">23:00</option>
+            </select>
           </div>
         </div>
 
@@ -366,17 +401,17 @@
         <p style="font-size:14px; color:#22d3ee; font-weight:700; margin-bottom:15px;">Prix : <span id="recap-prix"></span></p>
 
         <div class="security-actions">
-          <button class="sec-btn" onclick="alert('🚨 Bouton d\'urgence activé. Les secours et votre contact d\'urgence sont prévenus.')">🚨 SOS</button>
-          <button class="sec-btn share" onclick="alert('🔗 Lien de partage copié ! Envoyez-le à un proche pour qu\'il suive votre trajet.')">🔗 Partager</button>
-          <button class="sec-btn call" onclick="alert('📞 Appel masqué en cours vers le chauffeur...')">📞 Appeler</button>
+          <button class="sec-btn" onclick="alert('🚨 Bouton d\'urgence activé.')">🚨 SOS</button>
+          <button class="sec-btn share" onclick="alert('🔗 Lien de partage copié !')">🔗 Partager</button>
+          <button class="sec-btn call" onclick="alert('📞 Appel masqué en cours...')">📞 Appeler</button>
         </div>
         
         <div class="security-actions" style="margin-top:10px;">
-          <button class="sec-btn audio" onclick="alert('🎙️ Enregistrement audio activé pour cette course.')">🎙️ Enregistrer l'audio</button>
+          <button class="sec-btn audio" onclick="alert('🎙️ Enregistrement audio activé.')">🎙️ Enregistrer l'audio</button>
         </div>
 
         <div class="ai-bubble" id="ai-bubble">
-          <strong>🤖 Assistant RunLine :</strong> Votre chauffeur arrive dans 3 min. Il est en Peugeot 308 grise. N'oubliez pas de vérifier la plaque avant de monter.
+          <strong>🤖 Assistant RunLine :</strong> Votre chauffeur arrive dans 3 min. Il est en Peugeot 308 grise.
         </div>
 
         <button class="btn btn-outline" style="margin-top:20px;" onclick="annulerRecherche()">Annuler la course</button>
@@ -413,7 +448,7 @@
     </div>
   </div>
 
-  <!-- NAVIGATION (Modifiée selon le rôle) -->
+  <!-- NAVIGATION -->
   <div class="bottom-nav" id="bottom-nav">
     <button class="active" id="nav-passager" onclick="showTab('passager', this)"><span>🚗</span>Passager</button>
     <button id="nav-chauffeur" onclick="showTab('chauffeur', this)" style="display:none;"><span>🛡️</span>Chauffeur</button>
@@ -442,12 +477,13 @@
   let departMarker = null;
   let arriveeMarker = null;
   let selectedPaymentMethod = 'cb';
-  let selectedRole = 'passager'; // Rôle par défaut à l'inscription
+  let selectedRole = 'passager';
   
-  // Variables pour le calendrier
+  // Calendrier
   let currentDate = new Date();
   let selectedDate = new Date();
   let selectedTime = "Maintenant";
+  let isCalendarOpen = false;
 
   // === INITIALISATION DE LA CARTE ===
   function initMap() {
@@ -459,17 +495,16 @@
     L.control.zoom({ position: 'topright' }).addTo(map);
   }
 
-  // === GESTION DU RÔLE À L'INSCRIPTION ===
+  // === GESTION DU RÔLE ===
   function selectRole(role) {
     selectedRole = role;
     document.getElementById('role-passager').classList.remove('active');
     document.getElementById('role-chauffeur').classList.remove('active');
-    
     if(role === 'passager') document.getElementById('role-passager').classList.add('active');
     else document.getElementById('role-chauffeur').classList.add('active');
   }
 
-  // === AUTHENTIFICATION SUPABASE ===
+  // === AUTHENTIFICATION ===
   async function checkAuth() {
     const { data: { session } } = await client.auth.getSession();
     if (session) {
@@ -479,13 +514,11 @@
       document.getElementById('main-footer').style.display = 'block';
       document.getElementById('user-email').innerText = session.user.email;
       
-      // On récupère le rôle de l'utilisateur (stocké dans les métadonnées Supabase)
       const userRole = session.user.user_metadata.role || 'passager';
       
-      // Affichage conditionnel de l'onglet Chauffeur
       if (userRole === 'chauffeur') {
         document.getElementById('nav-chauffeur').style.display = 'flex';
-        document.getElementById('nav-passager').style.display = 'none'; // Un chauffeur ne commande pas
+        document.getElementById('nav-passager').style.display = 'none';
         showTab('chauffeur', document.getElementById('nav-chauffeur'));
       } else {
         document.getElementById('nav-chauffeur').style.display = 'none';
@@ -494,7 +527,7 @@
       }
 
       setTimeout(initMap, 100); 
-      renderCalendar(); // On initialise le calendrier
+      renderCalendar(); 
     } else {
       document.getElementById('auth-screen').style.display = 'flex';
       document.getElementById('app-screen').style.display = 'none';
@@ -520,7 +553,6 @@
     
     if(!email || !password) return alert("Remplissez tout");
     
-    // On enregistre le rôle (passager ou chauffeur) dans les métadonnées
     const { error } = await client.auth.signUp({ 
         email, 
         password,
@@ -541,17 +573,29 @@
 
   async function signOut() {
     await client.auth.signOut();
+    document.getElementById('map-container').style.display = 'none';
     checkAuth();
   }
 
-  // === CALENDRIER INTERACTIF ===
+  // === CALENDRIER ===
+  function toggleCalendar() {
+    isCalendarOpen = !isCalendarOpen;
+    document.getElementById('calendar-wrapper').style.display = isCalendarOpen ? 'block' : 'none';
+    if(isCalendarOpen) renderCalendar();
+  }
+
+  function updateCalendarButtonText() {
+    const dateStr = selectedDate.toLocaleDateString('fr-FR');
+    document.getElementById('calendar-btn-text').innerText = `${dateStr} à ${selectedTime}`;
+  }
+
   function renderCalendar() {
+    updateCalendarButtonText();
     const grid = document.getElementById('calendar-grid');
     const monthLabel = document.getElementById('month-label');
-    const timeSelector = document.getElementById('time-selector');
     
+    if(!grid) return;
     grid.innerHTML = '';
-    timeSelector.innerHTML = '';
     
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -562,25 +606,21 @@
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     
-    // Jours vides au début
     for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
         const empty = document.createElement('div');
         empty.className = 'cal-day empty';
         grid.appendChild(empty);
     }
     
-    // Jours du mois
     for (let i = 1; i <= daysInMonth; i++) {
         const day = document.createElement('div');
         day.className = 'cal-day';
         day.innerText = i;
         
-        // Vérifier si c'est le jour sélectionné
         if (selectedDate.getDate() === i && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) {
             day.classList.add('active');
         }
         
-        // Désactiver les jours passés
         const today = new Date();
         today.setHours(0,0,0,0);
         const thisDate = new Date(year, month, i);
@@ -595,22 +635,6 @@
         }
         grid.appendChild(day);
     }
-    
-    // Générateur d'heures (de 6h à 23h)
-    const hours = ["Maintenant", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"];
-    hours.forEach(h => {
-        const slot = document.createElement('div');
-        slot.className = 'time-slot';
-        slot.innerText = h;
-        
-        if (selectedTime === h) slot.classList.add('active');
-        
-        slot.onclick = () => {
-            selectedTime = h;
-            renderCalendar();
-        };
-        timeSelector.appendChild(slot);
-    });
   }
 
   function changeMonth(direction) {
@@ -664,6 +688,9 @@
         document.getElementById('result-box').style.display = 'block';
         document.getElementById('btn-commander').style.display = 'block';
 
+        document.getElementById('map-container').style.display = 'block';
+        setTimeout(() => map.invalidateSize(), 100);
+
         if (routingLayer) map.removeLayer(routingLayer);
         if (departMarker) map.removeLayer(departMarker);
         if (arriveeMarker) map.removeLayer(arriveeMarker);
@@ -684,6 +711,7 @@
         console.error(error);
         document.getElementById('result-box').style.display = 'none';
         document.getElementById('btn-commander').style.display = 'none';
+        document.getElementById('map-container').style.display = 'none';
     } finally {
         btn.innerHTML = 'Estimer le prix';
         btn.disabled = false;
@@ -698,26 +726,16 @@
   }
 
   // === PAIEMENT ===
-  function openPaymentModal() {
-    document.getElementById('payment-modal').style.display = 'flex';
-  }
-
-  function closePaymentModal() {
-    document.getElementById('payment-modal').style.display = 'none';
-  }
-
+  function openPaymentModal() { document.getElementById('payment-modal').style.display = 'flex'; }
+  function closePaymentModal() { document.getElementById('payment-modal').style.display = 'none'; }
   function selectPay(element, method) {
     document.querySelectorAll('.pay-method').forEach(el => el.classList.remove('active'));
     element.classList.add('active');
     selectedPaymentMethod = method;
   }
+  function confirmPayment() { closePaymentModal(); startSearch(); }
 
-  function confirmPayment() {
-    closePaymentModal();
-    startSearch();
-  }
-
-  // === RECHERCHE DU CHAUFFEUR ===
+  // === RECHERCHE ===
   function startSearch() {
     const depart = document.getElementById('depart').value;
     const arrivee = document.getElementById('arrivee').value;
@@ -740,6 +758,7 @@
     document.getElementById('ai-bubble').classList.remove('show');
     document.getElementById('screen-recherche').style.display = 'none';
     document.getElementById('screen-passager').style.display = 'block';
+    document.getElementById('map-container').style.display = 'none';
   }
 
   // === NAVIGATION ===
@@ -750,27 +769,20 @@
     }
     document.querySelectorAll('.screen-content').forEach(s => s.style.display = 'none');
     document.getElementById('screen-' + tab).style.display = 'block';
-    
-    if(tab === 'passager' && map) {
-        setTimeout(() => map.invalidateSize(), 100);
-    }
+    if(tab === 'passager' && map) setTimeout(() => map.invalidateSize(), 100);
   }
 
   // === STATUT CHAUFFEUR ===
   function toggleStatus() {
     const btn = document.getElementById('status-btn');
     if (btn.classList.contains('offline')) {
-      btn.classList.remove('offline');
-      btn.classList.add('online');
-      btn.innerText = "En ligne";
+      btn.classList.remove('offline'); btn.classList.add('online'); btn.innerText = "En ligne";
     } else {
-      btn.classList.remove('online');
-      btn.classList.add('offline');
-      btn.innerText = "Hors ligne";
+      btn.classList.remove('online'); btn.classList.add('offline'); btn.innerText = "Hors ligne";
     }
   }
 
-  // === UPLOAD DOCUMENTS ===
+  // === UPLOAD ===
   async function upload(input, name) {
     const file = input.files[0];
     if (!file) return;
@@ -779,7 +791,6 @@
     
     const statusSpan = document.getElementById('status-' + name.toLowerCase().replace(' ', ''));
     const iconSpan = document.getElementById('s' + (name === 'Permis' ? '1' : name === 'VTC' ? '2' : '3'));
-    
     if(statusSpan) statusSpan.innerText = "Envoi en cours...";
     if(iconSpan) iconSpan.innerText = "⏳";
 
@@ -791,9 +802,9 @@
       if(statusSpan) statusSpan.innerText = "Erreur";
       if(iconSpan) iconSpan.innerText = "❌";
     } else {
-      if(statusSpan) statusSpan.innerText = "Envoyé avec succès !";
+      if(statusSpan) statusSpan.innerText = "Envoyé !";
       if(iconSpan) { iconSpan.innerText = "✅"; iconSpan.style.color = "#22d3ee"; }
-      alert("Document envoyé avec succès !");
+      alert("Document envoyé !");
     }
   }
 
