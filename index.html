@@ -52,15 +52,16 @@
   .trip-card{background:#16161f;border:1px solid #26263a;border-radius:16px;padding:20px;margin-bottom:15px}
   .trip-card h3{font-size:16px;margin-bottom:15px;color:#fff}
   
-  /* CARTE (MAP) */
-  .map-box{height:180px;background:repeating-linear-gradient(45deg, #1a1a2e, #1a1a2e 10px, #16161f 10px, #16161f 20px);border-radius:16px;border:1px solid #26263a;margin-bottom:15px;display:flex;align-items:center;justify-content:center;color:#4a4a5e;font-size:12px;font-weight:600;position:relative;overflow:hidden}
-  .map-box::after{content:'🗺️ Carte interactive (bientôt disponible)'; position:relative; z-index:1;}
+  /* SELECTEUR DATE & HEURE */
+  .date-time-box { display: flex; gap: 10px; margin-bottom: 15px; }
+  .date-picker, .time-picker { background: #16161f; border: 1px solid #26263a; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; flex: 1; }
+  .date-picker input, .time-picker input { background: none; border: none; color: #fff; font-size: 14px; outline: none; width: 100%; }
+  .date-picker input::-webkit-calendar-picker-indicator, .time-picker input::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
 
-  /* CALENDRIER */
-  .calendar-row{display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;margin-bottom:15px}
-  .day-btn{background:#16161f;border:1px solid #26263a;border-radius:10px;padding:10px 0;text-align:center;cursor:pointer;font-size:11px;color:#8b8b9e;transition:.2s}
-  .day-btn.active{background:rgba(255,209,102,.1);border-color:#ffd166;color:#ffd166;font-weight:700}
-  .day-btn span{display:block;font-size:16px;color:#fff;margin-bottom:2px}
+  /* CARTE (Apparaît après calcul) */
+  .map-container { display:none; height:180px; background:repeating-linear-gradient(45deg, #1a1a2e, #1a1a2e 10px, #16161f 10px, #16161f 20px); border-radius:16px; border:1px solid #26263a; margin-top:20px; margin-bottom:15px; position:relative; overflow:hidden; align-items:center; justify-content:center; color:#4a4a5e; font-size:12px; font-weight:600; }
+  .map-container::after { content:'🗺️ Trajet estimé (Carte bientôt disponible)'; position:relative; z-index:1; }
+  .map-container.show { display: flex; }
 
   .result-box{background:rgba(255,209,102,.05);border:1px solid rgba(255,209,102,.2);border-radius:12px;padding:15px;margin-top:15px;display:none}
   .res-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;color:#c4c4d4}
@@ -102,7 +103,7 @@
 
   .screen-content { display: none; }
 
-  /* FOOTER (Uniquement dans Profil) */
+  /* FOOTER (Profil) */
   .footer{text-align:left; padding: 20px 0; border-top: 1px solid #26263a; margin-top: 30px;}
   .footer .menu-title { display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding-bottom:10px; border-bottom:1px solid #1f1f2e; font-size:13px; font-weight:600; color:#fff; letter-spacing:1px;}
   .footer .menu-icon { color:#ffd166; font-size:18px; }
@@ -179,9 +180,6 @@
         <div class="big">1€<small> /course</small></div>
       </div>
 
-      <!-- CARTE -->
-      <div class="map-box"></div>
-
       <div class="trip-card">
         <h3>Où allez-vous ?</h3>
         <div class="fav-row">
@@ -191,14 +189,13 @@
         <div class="input-group"><label>Départ</label><input id="depart" value="Tour Eiffel"></div>
         <div class="input-group"><label>Arrivée</label><input id="arrivee" value="Gare du Nord"></div>
         
-        <!-- CALENDRIER -->
-        <div class="input-group" style="padding:12px;">
-          <label style="margin-bottom:10px; display:block;">Quand ?</label>
-          <div class="calendar-row">
-            <div class="day-btn active"><span>Auj.</span>30</div>
-            <div class="day-btn"><span>Dem.</span>31</div>
-            <div class="day-btn"><span>Ven.</span>01</div>
-            <div class="day-btn"><span>Sam.</span>02</div>
+        <!-- DATE & HEURE -->
+        <div class="date-time-box">
+          <div class="date-picker">
+            <input type="date" id="date-resa">
+          </div>
+          <div class="time-picker">
+            <input type="time" id="time-resa">
           </div>
         </div>
 
@@ -208,6 +205,9 @@
         </div>
         <button class="btn btn-primary" style="margin-top:10px" onclick="calcPrice()">Estimer le prix</button>
         
+        <!-- CARTE (Apparaît après estimation) -->
+        <div class="map-container" id="map-container"></div>
+
         <div class="result-box" id="result-box">
           <div class="res-row"><span>Prise en charge</span><b>1,50€</b></div>
           <div class="res-row"><span id="lbl-km">Distance</span><b id="res-km">0,00€</b></div>
@@ -460,7 +460,7 @@
     calcPrice();
   }
 
-  // === CALCUL DU PRIX ===
+  // === CALCUL DU PRIX + AFFICHAGE CARTE ===
   function calcPrice() {
     const km = parseFloat(document.getElementById('km').value) || 0;
     const min = parseFloat(document.getElementById('min').value) || 0;
@@ -480,6 +480,9 @@
     
     document.getElementById('result-box').style.display = 'block';
     document.getElementById('btn-commander').style.display = 'block';
+    
+    // Affichage de la carte après le calcul
+    document.getElementById('map-container').classList.add('show');
   }
 
   // === RECHERCHE CHAUFFEUR ===
