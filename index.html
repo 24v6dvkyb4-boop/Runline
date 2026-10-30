@@ -16,7 +16,7 @@
   #auth-screen{display:flex;flex-direction:column;justify-content:center;min-height:90vh}
   .logo-big{font-size:38px;font-weight:900;text-align:center;margin-bottom:10px;letter-spacing:-1.5px}
   .logo-big span{background:linear-gradient(135deg,#ffd166,#ff9f1c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .subtitle{text-align:center;color:#8b8b9e;margin-bottom:40px;font-size:14px}
+  .subtitle{text-align:center;color:#8b8b9e;margin-bottom:30px;font-size:14px}
   .btn{width:100%;padding:16px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;border:none;transition:.2s;display:flex;align-items:center;justify-content:center;gap:10px}
   .btn-google{background:#fff;color:#1a1a2e}
   .btn-google img{width:20px}
@@ -29,14 +29,21 @@
   .divider{display:flex;align-items:center;gap:10px;margin:24px 0;color:#4a4a5e;font-size:11px;text-transform:uppercase;letter-spacing:1px}
   .divider::before,.divider::after{content:'';flex:1;height:1px;background:#26263a}
 
+  /* CHOIX DU RÔLE */
+  .role-select{display:flex;gap:10px;margin-bottom:15px}
+  .role-btn{flex:1;background:#16161f;border:2px solid #26263a;border-radius:12px;padding:15px;text-align:center;cursor:pointer;transition:.2s}
+  .role-btn.active{border-color:#ffd166;background:rgba(255,209,102,0.1)}
+  .role-btn .icon{font-size:24px;display:block;margin-bottom:5px}
+  .role-btn .name{font-size:13px;font-weight:700;color:#fff}
+
   /* APPLICATION */
   #app-screen{display:none}
   .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
   .header .logo{font-size:22px;font-weight:900;letter-spacing:-1px}
   .header .logo span{background:linear-gradient(135deg,#ffd166,#ff9f1c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   
-  /* CARTE (cachée par défaut) */
-  #map-container{height:250px;border-radius:20px;border:1px solid #26263a;margin-bottom:20px;overflow:hidden;position:relative;z-index:1; background:#16161f; display: none;}
+  /* CARTE (MODE SOMBRE) */
+  #map-container{height:220px;border-radius:20px;border:1px solid #26263a;margin-bottom:20px;overflow:hidden;position:relative;z-index:1; background:#16161f; display:none;}
   .leaflet-layer { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
   
   /* HERO CARD */
@@ -93,11 +100,15 @@
   .sec-btn.audio { border-color: #8b5cf6; color: #8b5cf6; }
   .sec-btn:active { opacity: 0.7; }
 
-  /* NOUVEAUX CHAMPS FORMULAIRE */
-  .select-group{background:#16161f;border:1px solid #26263a;border-radius:12px;padding:14px;margin-bottom:12px; display: flex; flex-direction: column;}
-  .select-group label{font-size:10px;color:#8b8b9e;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:5px;}
-  .select-group select {background:none;border:none;outline:none;color:#fff;font-size:14px;width:100%;-webkit-appearance:none;}
-  .select-group select option { background: #16161f; color: #fff; }
+  /* CALENDRIER */
+  .calendar-box{background:#16161f;border:1px solid #26263a;border-radius:16px;padding:15px;}
+  .calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:700}
+  .calendar-header button{background:none;border:none;color:#ffd166;font-size:18px;cursor:pointer}
+  .calendar-grid{display:grid;grid-template-columns:repeat(7, 1fr);gap:5px;text-align:center}
+  .cal-day{padding:8px;font-size:12px;border-radius:8px;cursor:pointer;transition:.2s}
+  .cal-day:hover{background:#26263a}
+  .cal-day.active{background:#ffd166;color:#1a1a2e;font-weight:700}
+  .cal-day.empty{visibility:hidden}
 
   /* MODAL DE PAIEMENT */
   .payment-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(5px); }
@@ -121,12 +132,11 @@
   .screen-content { display: none; }
 
   /* FOOTER */
-  .footer{text-align:left; padding: 20px 0; border-top: 1px solid #26263a; margin-top: 30px;}
-  .footer .menu-title { display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding-bottom:10px; border-bottom:1px solid #1f1f2e; font-size:13px; font-weight:600; color:#fff; letter-spacing:1px;}
-  .footer .menu-icon { color:#ffd166; font-size:18px; }
-  .footer .menu-content { display:none; padding-top:10px; flex-direction:column; gap:10px; font-size:12px;}
+  .footer{text-align:center; padding: 30px 20px 20px; border-top: 1px solid #26263a; margin-top: 30px;}
+  .footer p{font-size: 11px; color: #4a4a5e; margin-bottom: 8px;}
+  .footer .links{display:flex; justify-content:center; gap:12px; font-size:10px;}
   .footer a{color:#8b8b9e; text-decoration:none;}
-  .footer a:hover{color:#ffd166;}
+  .footer .secure-tag{margin-top:10px; font-size:10px; color:#22d3ee;}
 
   .spinner{display:inline-block; width:16px; height:16px; border:2px solid rgba(0,0,0,0.3); border-radius:50%; border-top-color:#000; animation: spin 1s ease-in-out infinite; margin-left:8px;}
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -140,13 +150,6 @@
   .ai-bubble { background: #1a1a2e; border: 1px solid #22d3ee; border-radius: 12px; padding: 12px; font-size: 12px; color: #22d3ee; margin-top: 15px; display: none; }
   .ai-bubble.show { display: block; animation: fadeIn 0.3s; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* MODAL LÉGALE */
-  #legal-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; padding:20px; }
-  .modal-content-box { background:#16161f; border:1px solid #26263a; border-radius:16px; padding:20px; max-width:400px; width:100%; max-height:80vh; overflow-y:auto; position:relative; }
-  .modal-close { position:absolute; top:15px; right:15px; background:none; border:none; color:#fff; font-size:20px; cursor:pointer; }
-  .modal-title { font-size:18px; color:#ffd166; margin-bottom:15px; }
-  .modal-text { font-size:12px; color:#c4c4d4; line-height:1.6; }
 </style>
 </head>
 <body>
@@ -157,21 +160,34 @@
   <div id="auth-screen">
     <div class="logo-big">RUN<span>LINE</span></div>
     <div class="subtitle">Le transport premium au prix mini</div>
-    <button class="btn btn-google" onclick="signInWithGoogle()">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"> Continuer avec Google
-    </button>
-    <div class="divider">ou par email</div>
+    
     <div id="login-form">
+      <button class="btn btn-google" onclick="signInWithGoogle()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"> Continuer avec Google
+      </button>
+      <div class="divider">ou par email</div>
       <div class="input-group"><label>Email</label><input type="email" id="loginEmail"></div>
       <div class="input-group"><label>Mot de passe</label><input type="password" id="loginPassword"></div>
       <button class="btn btn-primary" onclick="signIn()">Se connecter</button>
       <button class="btn btn-outline" onclick="toggleAuth('signup')">Créer un compte</button>
     </div>
+
     <div id="signup-form" style="display:none">
       <div class="input-group"><label>Nom</label><input id="signupName"></div>
       <div class="input-group"><label>Email</label><input type="email" id="signupEmail"></div>
       <div class="input-group"><label>Mot de passe</label><input type="password" id="signupPassword"></div>
-      <button class="btn btn-primary" onclick="signUp()">Créer mon compte</button>
+      
+      <div style="margin-top:15px; margin-bottom:10px; color:#8b8b9e; font-size:12px; text-align:center;">Je m'inscris en tant que :</div>
+      <div class="role-select">
+        <div class="role-btn active" id="role-passager" onclick="selectRole('passager')">
+          <span class="icon">👤</span><span class="name">Passager</span>
+        </div>
+        <div class="role-btn" id="role-chauffeur" onclick="selectRole('chauffeur')">
+          <span class="icon">🚗</span><span class="name">Chauffeur</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top:10px;" onclick="signUp()">Créer mon compte</button>
       <button class="btn btn-outline" onclick="toggleAuth('login')">J'ai déjà un compte</button>
     </div>
   </div>
@@ -206,22 +222,64 @@
         <div class="input-group"><label>Départ</label><input id="depart" value="Paris"></div>
         <div class="input-group"><label>Arrivée</label><input id="arrivee" value="Marseille"></div>
         
-        <div class="select-group">
-          <label>Type de véhicule</label>
-          <select id="type-vehicule">
+        <div class="select-group" style="background:#16161f;border:1px solid #26263a;border-radius:12px;padding:14px;margin-bottom:12px;">
+          <label style="font-size:10px;color:#8b8b9e;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:5px;display:block;">Type de véhicule</label>
+          <select id="type-vehicule" style="background:none;border:none;outline:none;color:#fff;font-size:14px;width:100%;">
             <option value="standard">🚗 Standard (Économique)</option>
             <option value="van">🚐 Van (Groupes/Bagages)</option>
           </select>
         </div>
 
-        <div class="select-group">
-          <label>Quand ?</label>
-          <select id="quand-reserver">
-            <option value="now">Maintenant (Dès que possible)</option>
-            <option value="30m">Dans 30 minutes</option>
-            <option value="1h">Dans 1 heure</option>
-            <option value="demain">Demain matin (8h00)</option>
-          </select>
+        <button class="btn btn-outline" style="margin-bottom:15px;" onclick="toggleCalendar()">
+          📅 <span id="calendar-btn-text">Choisir une date et une heure</span>
+        </button>
+
+        <div id="calendar-wrapper" style="display:none; margin-bottom:15px;">
+          <div class="calendar-box">
+            <div class="calendar-header">
+              <button onclick="changeMonth(-1)">◀</button>
+              <span id="month-label"></span>
+              <button onclick="changeMonth(1)">▶</button>
+            </div>
+            <div class="calendar-grid" id="calendar-grid"></div>
+            <div style="margin-top:10px; color:#8b8b9e; font-size:11px;">Heure :</div>
+            <select id="time-selector" style="width:100%; padding:10px; margin-top:5px; background:#16161f; color:#fff; border:1px solid #26263a; border-radius:8px;" onchange="selectedTime = this.value; updateCalendarButtonText();">
+              <option value="Maintenant">Maintenant</option>
+              <option value="07:00">07:00</option>
+              <option value="07:30">07:30</option>
+              <option value="08:00">08:00</option>
+              <option value="08:30">08:30</option>
+              <option value="09:00">09:00</option>
+              <option value="09:30">09:30</option>
+              <option value="10:00">10:00</option>
+              <option value="10:30">10:30</option>
+              <option value="11:00">11:00</option>
+              <option value="11:30">11:30</option>
+              <option value="12:00">12:00</option>
+              <option value="12:30">12:30</option>
+              <option value="13:00">13:00</option>
+              <option value="13:30">13:30</option>
+              <option value="14:00">14:00</option>
+              <option value="14:30">14:30</option>
+              <option value="15:00">15:00</option>
+              <option value="15:30">15:30</option>
+              <option value="16:00">16:00</option>
+              <option value="16:30">16:30</option>
+              <option value="17:00">17:00</option>
+              <option value="17:30">17:30</option>
+              <option value="18:00">18:00</option>
+              <option value="18:30">18:30</option>
+              <option value="19:00">19:00</option>
+              <option value="19:30">19:30</option>
+              <option value="20:00">20:00</option>
+              <option value="20:30">20:30</option>
+              <option value="21:00">21:00</option>
+              <option value="21:30">21:30</option>
+              <option value="22:00">22:00</option>
+              <option value="22:30">22:30</option>
+              <option value="23:00">23:00</option>
+            </select>
+          </div>
         </div>
 
         <button class="btn btn-primary" id="btn-calc" style="margin-top:10px" onclick="calcRoute()">Estimer le prix</button>
@@ -316,7 +374,7 @@
       </div>
     </div>
 
-    <!-- PROFIL (avec le pied de page) -->
+    <!-- PROFIL -->
     <div class="screen-content" id="screen-profil">
       <div class="trip-card">
         <h3>Mon profil</h3>
@@ -325,60 +383,30 @@
         <div class="input-group"><label>Téléphone</label><input placeholder="+33 6 00 00 00 00"></div>
         <button class="btn btn-primary" style="margin-top:10px;">Mettre à jour</button>
       </div>
-
-      <!-- LE PIED DE PAGE (Politiques) -->
-      <div class="footer">
-        <div style="margin-bottom:20px;">
-          <div class="menu-title" onclick="toggleFooterMenu('menu-runline')">
-            <span>MENU RUNLINE</span>
-            <span id="icon-menu-runline" class="menu-icon">+</span>
-          </div>
-          <div id="menu-runline" class="menu-content">
-            <a href="#">Accueil</a>
-            <a href="#">Devenir chauffeur</a>
-            <a href="#">Tarifs et commissions</a>
-          </div>
-        </div>
-
-        <div style="margin-bottom:20px;">
-          <div class="menu-title" onclick="toggleFooterMenu('menu-client')">
-            <span>MENU CLIENT</span>
-            <span id="icon-menu-client" class="menu-icon">+</span>
-          </div>
-          <div id="menu-client" class="menu-content">
-            <a href="#">Mon profil</a>
-            <a href="#">Mes courses</a>
-            <a href="#">Contactez-nous</a>
-          </div>
-        </div>
-
-        <div style="margin-bottom:20px;">
-          <div class="menu-title" onclick="toggleFooterMenu('menu-politiques')">
-            <span>POLITIQUES</span>
-            <span id="icon-menu-politiques" class="menu-icon">+</span>
-          </div>
-          <div id="menu-politiques" class="menu-content">
-            <a href="#" onclick="openModal('mentions')">Mentions légales</a>
-            <a href="#" onclick="openModal('confidentialite')">Politique de confidentialité (RGPD)</a>
-            <a href="#" onclick="openModal('cgv')">Conditions Générales de Vente (CGV)</a>
-            <a href="#" onclick="openModal('cgu')">Conditions Générales d'Utilisation (CGU)</a>
-          </div>
-        </div>
-
-        <div style="text-align:center; margin-top:30px;">
-          <div style="font-size:20px; font-weight:900; letter-spacing:-1px; margin-bottom:10px;">RUN<span style="color:#ffd166;">LINE</span></div>
-          <p style="font-size: 10px; color: #4a4a5e; margin-bottom: 8px;">© 2026 RunLine. Tous droits réservés.</p>
-          <div class="secure-tag" style="font-size:10px; color:#22d3ee;">🔒 Paiement sécurisé · Données chiffrées AES-256</div>
-        </div>
-      </div>
     </div>
     
     <!-- RECHERCHE / COURSE EN COURS -->
     <div class="screen-content" id="screen-recherche">
-      <div style="text-align:center; padding-top: 20px;">
+      <div id="search-view" style="text-align:center; padding-top: 20px;">
         <div class="spinner" style="width: 40px; height: 40px; border-width: 4px; border-top-color: #ffd166; margin: 0 auto 20px;"></div>
         <h2 style="font-size:20px; margin-bottom:10px;">Recherche d'un chauffeur...</h2>
         <p style="color:#8b8b9e; font-size:13px;">Veuillez patienter.</p>
+      </div>
+
+      <!-- VUE CHAUFFEUR TROUVÉ -->
+      <div id="driver-found-view" style="display:none; text-align:center; padding-top: 10px;">
+        <div style="font-size: 50px; margin-bottom: 10px;">🚗</div>
+        <h2 style="font-size:20px; color:#22d3ee; margin-bottom:5px;">Chauffeur en route !</h2>
+        <p style="color:#8b8b9e; font-size:13px; margin-bottom:20px;">Il arrive dans <strong id="arrival-time">3</strong> min</p>
+        
+        <div class="driver-card-live" style="background:#16161f; border:1px solid #26263a; border-radius:12px; padding:15px; display:flex; align-items:center; gap:15px; text-align:left; margin-bottom:15px;">
+          <div style="width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#ffd166,#ff9f1c); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:20px; color:#1a1a2e;">KM</div>
+          <div>
+            <strong style="display:block; font-size:15px;">Karim M.</strong>
+            <span style="font-size:12px; color:#8b8b9e;">Peugeot 308 · AB-123-CD</span><br>
+            <span style="font-size:12px; color:#ffd166;">★ 4.9 (1240 courses)</span>
+          </div>
+        </div>
       </div>
 
       <div class="trip-card" style="margin-top:20px; text-align:left;">
@@ -387,17 +415,17 @@
         <p style="font-size:14px; color:#22d3ee; font-weight:700; margin-bottom:15px;">Prix : <span id="recap-prix"></span></p>
 
         <div class="security-actions">
-          <button class="sec-btn" onclick="alert('🚨 Bouton d\'urgence activé. Les secours et votre contact d\'urgence sont prévenus.')">🚨 SOS</button>
-          <button class="sec-btn share" onclick="alert('🔗 Lien de partage copié ! Envoyez-le à un proche pour qu\'il suive votre trajet.')">🔗 Partager</button>
-          <button class="sec-btn call" onclick="alert('📞 Appel masqué en cours vers le chauffeur...')">📞 Appeler</button>
+          <button class="sec-btn" onclick="alert('🚨 Bouton d\'urgence activé.')">🚨 SOS</button>
+          <button class="sec-btn share" onclick="alert('🔗 Lien de partage copié !')">🔗 Partager</button>
+          <button class="sec-btn call" onclick="alert('📞 Appel masqué en cours...')">📞 Appeler</button>
         </div>
         
         <div class="security-actions" style="margin-top:10px;">
-          <button class="sec-btn audio" onclick="alert('🎙️ Enregistrement audio activé pour cette course.')">🎙️ Enregistrer l'audio</button>
+          <button class="sec-btn audio" onclick="alert('🎙️ Enregistrement audio activé.')">🎙️ Enregistrer l'audio</button>
         </div>
 
         <div class="ai-bubble" id="ai-bubble">
-          <strong>🤖 Assistant RunLine :</strong> Votre chauffeur arrive dans 3 min. Il est en Peugeot 308 grise. N'oubliez pas de vérifier la plaque avant de monter.
+          <strong>🤖 Assistant RunLine :</strong> Votre chauffeur arrive dans 3 min. Il est en Peugeot 308 grise.
         </div>
 
         <button class="btn btn-outline" style="margin-top:20px;" onclick="annulerRecherche()">Annuler la course</button>
@@ -434,29 +462,41 @@
     </div>
   </div>
 
-  <!-- MODAL LÉGALE -->
-  <div id="legal-modal">
-    <div class="modal-content-box">
-         <button onclick="closeModal()" class="modal-close">✕</button>
-    <h2 id="modal-title" class="modal-title">Titre</h2>
-    <div id="modal-content" class="modal-text"></div>
+  <!-- NAVIGATION -->
+  <div class="bottom-nav" id="bottom-nav">
+    <button class="active" id="nav-passager" onclick="showTab('passager', this)"><span>🚗</span>Passager</button>
+    <button id="nav-chauffeur" onclick="showTab('chauffeur', this)"><span>🛡️</span>Chauffeur</button>
+    <button onclick="showTab('historique', this)"><span>🧾</span>Courses</button>
+    <button onclick="showTab('profil', this)"><span>👤</span>Profil</button>
   </div>
+
+  <!-- FOOTER -->
+  <div class="footer" id="main-footer">
+    <p>© 2026 RunLine. Tous droits réservés.</p>
+    <div class="links"><a href="#">Mentions légales</a><a href="#">Politique de confidentialité</a><a href="#">CGU</a></div>
+    <div class="secure-tag">🔒 Paiement sécurisé · Données chiffrées AES-256</div>
+  </div>
+
 </div>
 
 <script>
-  // === CONFIGURATION SUPABASE ===
   const supabaseUrl = "https://magtyeybfufywqbevaux.supabase.co";
   const supabaseKey = "sb_publishable_543lDfIDZ-lpsP6w9xiO8A_2BRveCmE";
   const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // === VARIABLES GLOBALES ===
   let map;
   let routingLayer = null;
   let departMarker = null;
   let arriveeMarker = null;
   let selectedPaymentMethod = 'cb';
+  let selectedRole = 'passager';
+  
+  let currentDate = new Date();
+  let selectedDate = new Date();
+  let selectedTime = "Maintenant";
+  let isCalendarOpen = false;
+  let searchInterval;
 
-  // === INITIALISATION DE LA CARTE (Cachée par défaut) ===
   function initMap() {
     map = L.map('map-container', { zoomControl: false }).setView([46.603354, 1.888334], 6);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -466,19 +506,33 @@
     L.control.zoom({ position: 'topright' }).addTo(map);
   }
 
-  // === AUTHENTIFICATION SUPABASE ===
+  function selectRole(role) {
+    selectedRole = role;
+    document.getElementById('role-passager').classList.remove('active');
+    document.getElementById('role-chauffeur').classList.remove('active');
+    if(role === 'passager') document.getElementById('role-passager').classList.add('active');
+    else document.getElementById('role-chauffeur').classList.add('active');
+  }
+
   async function checkAuth() {
     const { data: { session } } = await client.auth.getSession();
     if (session) {
       document.getElementById('auth-screen').style.display = 'none';
       document.getElementById('app-screen').style.display = 'block';
       document.getElementById('bottom-nav').style.display = 'flex';
+      document.getElementById('main-footer').style.display = 'block';
       document.getElementById('user-email').innerText = session.user.email;
+      
+      // On affiche l'onglet chauffeur pour tout le monde pour l'instant
+      document.getElementById('nav-chauffeur').style.display = 'flex';
+      
       setTimeout(initMap, 100); 
+      renderCalendar(); 
     } else {
       document.getElementById('auth-screen').style.display = 'flex';
       document.getElementById('app-screen').style.display = 'none';
       document.getElementById('bottom-nav').style.display = 'none';
+      document.getElementById('main-footer').style.display = 'none';
     }
   }
 
@@ -495,8 +549,11 @@
   async function signUp() {
     const email = document.getElementById('signupEmail').value;
     const password = document.getElementById('signupPassword').value;
+    const name = document.getElementById('signupName').value;
     if(!email || !password) return alert("Remplissez tout");
-    const { error } = await client.auth.signUp({ email, password });
+    const { error } = await client.auth.signUp({ 
+        email, password, options: { data: { full_name: name, role: selectedRole } }
+    });
     if (error) alert("Erreur : " + error.message);
     else alert("Compte créé ! Vérifiez vos mails.");
   }
@@ -511,10 +568,60 @@
 
   async function signOut() {
     await client.auth.signOut();
+    document.getElementById('map-container').style.display = 'none';
     checkAuth();
   }
 
-  // === CALCUL DU TRAJET (AFFICHE LA CARTE) ===
+  function toggleCalendar() {
+    isCalendarOpen = !isCalendarOpen;
+    document.getElementById('calendar-wrapper').style.display = isCalendarOpen ? 'block' : 'none';
+    if(isCalendarOpen) renderCalendar();
+  }
+
+  function updateCalendarButtonText() {
+    const dateStr = selectedDate.toLocaleDateString('fr-FR');
+    document.getElementById('calendar-btn-text').innerText = `${dateStr} à ${selectedTime}`;
+  }
+
+  function renderCalendar() {
+    updateCalendarButtonText();
+    const grid = document.getElementById('calendar-grid');
+    const monthLabel = document.getElementById('month-label');
+    if(!grid) return;
+    grid.innerHTML = '';
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+    monthLabel.innerText = `${monthNames[month]} ${year}`;
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
+        const empty = document.createElement('div');
+        empty.className = 'cal-day empty';
+        grid.appendChild(empty);
+    }
+    for (let i = 1; i <= daysInMonth; i++) {
+        const day = document.createElement('div');
+        day.className = 'cal-day';
+        day.innerText = i;
+        if (selectedDate.getDate() === i && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) day.classList.add('active');
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const thisDate = new Date(year, month, i);
+        if (thisDate < today) {
+            day.style.opacity = '0.3'; day.style.cursor = 'not-allowed';
+        } else {
+            day.onclick = () => { selectedDate = new Date(year, month, i); renderCalendar(); };
+        }
+        grid.appendChild(day);
+    }
+  }
+
+  function changeMonth(direction) {
+    currentDate.setMonth(currentDate.getMonth() + direction);
+    renderCalendar();
+  }
+
   async function calcRoute() {
     const depart = document.getElementById('depart').value;
     const arrivee = document.getElementById('arrivee').value;
@@ -525,9 +632,6 @@
     
     btn.innerHTML = 'Estimation... <div class="spinner"></div>';
     btn.disabled = true;
-
-    // C'est ICI qu'on affiche la carte
-    document.getElementById('map-container').style.display = 'block';
 
     try {
         const geoDepart = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${depart}`).then(r => r.json());
@@ -563,85 +667,92 @@
         document.getElementById('result-box').style.display = 'block';
         document.getElementById('btn-commander').style.display = 'block';
 
+        document.getElementById('map-container').style.display = 'block';
+        setTimeout(() => map.invalidateSize(), 100);
+
         if (routingLayer) map.removeLayer(routingLayer);
         if (departMarker) map.removeLayer(departMarker);
         if (arriveeMarker) map.removeLayer(arriveeMarker);
 
         const departIcon = L.divIcon({ className: 'custom-pin pin-depart', html: 'D', iconSize: [30, 30], iconAnchor: [15, 15] });
         departMarker = L.marker([lat1, lon1], { icon: departIcon }).addTo(map);
-
         const arriveeIcon = L.divIcon({ className: 'custom-pin pin-arrivee', html: 'A', iconSize: [30, 30], iconAnchor: [15, 15] });
         arriveeMarker = L.marker([lat2, lon2], { icon: arriveeIcon }).addTo(map);
-
-        routingLayer = L.geoJSON(route.routes[0].geometry, {
-            style: { color: '#ffd166', weight: 6, opacity: 1, lineCap: 'round', lineJoin: 'round' }
-        }).addTo(map);
-        
+        routingLayer = L.geoJSON(route.routes[0].geometry, { style: { color: '#ffd166', weight: 6, opacity: 1 } }).addTo(map);
         map.fitBounds(routingLayer.getBounds(), { padding: [30, 30] });
 
     } catch (error) {
         console.error(error);
         document.getElementById('result-box').style.display = 'none';
         document.getElementById('btn-commander').style.display = 'none';
-        document.getElementById('map-container').style.display = 'none'; // On cache la carte en cas d'erreur
+        document.getElementById('map-container').style.display = 'none';
     } finally {
         btn.innerHTML = 'Estimer le prix';
         btn.disabled = false;
     }
   }
 
-  // === FAVORIS ===
   function setFav(dest, depart) {
     document.getElementById('arrivee').value = dest;
     document.getElementById('depart').value = depart;
     calcRoute();
   }
 
-  // === PAIEMENT ET COMMANDE ===
-  function openPaymentModal() {
-    document.getElementById('payment-modal').style.display = 'flex';
-  }
-
-  function closePaymentModal() {
-    document.getElementById('payment-modal').style.display = 'none';
-  }
-
+  function openPaymentModal() { document.getElementById('payment-modal').style.display = 'flex'; }
+  function closePaymentModal() { document.getElementById('payment-modal').style.display = 'none'; }
   function selectPay(element, method) {
     document.querySelectorAll('.pay-method').forEach(el => el.classList.remove('active'));
     element.classList.add('active');
     selectedPaymentMethod = method;
   }
+  function confirmPayment() { closePaymentModal(); startSearch(); }
 
-  function confirmPayment() {
-    closePaymentModal();
-    startSearch();
-  }
-
-  // === RECHERCHE DU CHAUFFEUR ===
   function startSearch() {
     const depart = document.getElementById('depart').value;
     const arrivee = document.getElementById('arrivee').value;
     const prix = document.getElementById('res-total').innerText;
+    const dateStr = selectedDate.toLocaleDateString('fr-FR');
     
-    document.getElementById('recap-trajet').innerText = `${depart} ➔ ${arrivee}`;
+    document.getElementById('recap-trajet').innerText = `${depart} ➔ ${arrivee} (${dateStr} à ${selectedTime})`;
     document.getElementById('recap-prix').innerText = prix;
 
     showTab('recherche', document.querySelector('.bottom-nav button.active')); 
     document.getElementById('screen-passager').style.display = 'none';
     document.getElementById('screen-recherche').style.display = 'block';
+    document.getElementById('search-view').style.display = 'block';
+    document.getElementById('driver-found-view').style.display = 'none';
 
-    setTimeout(() => {
-        document.getElementById('ai-bubble').classList.add('show');
-    }, 3000);
+    // SIMULATION DE RECHERCHE
+    let searchCount = 0;
+    searchInterval = setInterval(() => {
+        searchCount++;
+        if (searchCount === 3) { // Après 3 secondes, un chauffeur est trouvé
+            document.getElementById('search-view').style.display = 'none';
+            document.getElementById('driver-found-view').style.display = 'block';
+            document.getElementById('ai-bubble').classList.add('show');
+            
+            // Compte à rebours
+            let timeLeft = 3;
+            document.getElementById('arrival-time').innerText = timeLeft;
+            let countdown = setInterval(() => {
+                timeLeft--;
+                if (timeLeft >= 0) document.getElementById('arrival-time').innerText = timeLeft;
+                else clearInterval(countdown);
+            }, 4000);
+            
+            clearInterval(searchInterval);
+        }
+    }, 1000);
   }
 
   function annulerRecherche() {
+    clearInterval(searchInterval);
     document.getElementById('ai-bubble').classList.remove('show');
     document.getElementById('screen-recherche').style.display = 'none';
     document.getElementById('screen-passager').style.display = 'block';
+    document.getElementById('map-container').style.display = 'none';
   }
 
-  // === NAVIGATION ===
   function showTab(tab, btn) {
     if(btn) {
       document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
@@ -649,27 +760,18 @@
     }
     document.querySelectorAll('.screen-content').forEach(s => s.style.display = 'none');
     document.getElementById('screen-' + tab).style.display = 'block';
-    
-    if(tab === 'passager' && map) {
-        setTimeout(() => map.invalidateSize(), 100);
-    }
+    if(tab === 'passager' && map) setTimeout(() => map.invalidateSize(), 100);
   }
 
-  // === STATUT CHAUFFEUR ===
   function toggleStatus() {
     const btn = document.getElementById('status-btn');
     if (btn.classList.contains('offline')) {
-      btn.classList.remove('offline');
-      btn.classList.add('online');
-      btn.innerText = "En ligne";
+      btn.classList.remove('offline'); btn.classList.add('online'); btn.innerText = "En ligne";
     } else {
-      btn.classList.remove('online');
-      btn.classList.add('offline');
-      btn.innerText = "Hors ligne";
+      btn.classList.remove('online'); btn.classList.add('offline'); btn.innerText = "Hors ligne";
     }
   }
 
-  // === UPLOAD DOCUMENTS ===
   async function upload(input, name) {
     const file = input.files[0];
     if (!file) return;
@@ -678,7 +780,6 @@
     
     const statusSpan = document.getElementById('status-' + name.toLowerCase().replace(' ', ''));
     const iconSpan = document.getElementById('s' + (name === 'Permis' ? '1' : name === 'VTC' ? '2' : '3'));
-    
     if(statusSpan) statusSpan.innerText = "Envoi en cours...";
     if(iconSpan) iconSpan.innerText = "⏳";
 
@@ -690,74 +791,12 @@
       if(statusSpan) statusSpan.innerText = "Erreur";
       if(iconSpan) iconSpan.innerText = "❌";
     } else {
-      if(statusSpan) statusSpan.innerText = "Envoyé avec succès !";
+      if(statusSpan) statusSpan.innerText = "Envoyé !";
       if(iconSpan) { iconSpan.innerText = "✅"; iconSpan.style.color = "#22d3ee"; }
-      alert("Document envoyé avec succès !");
+      alert("Document envoyé !");
     }
   }
 
-  // === MENU ACCORDÉON FOOTER ===
-  function toggleFooterMenu(id) {
-    const menu = document.getElementById(id);
-    const icon = document.getElementById('icon-' + id);
-    if (menu.style.display === 'none' || menu.style.display === '') {
-      menu.style.display = 'flex';
-      icon.innerText = '−';
-    } else {
-      menu.style.display = 'none';
-      icon.innerText = '+';
-    }
-  }
-
-  // === MODAL LÉGALE ===
-  function openModal(type) {
-    const modal = document.getElementById('legal-modal');
-    const title = document.getElementById('modal-title');
-    const content = document.getElementById('modal-content');
-    modal.style.display = 'flex';
-
-    if (type === 'mentions') {
-      title.innerText = "Mentions légales";
-      content.innerHTML = `
-        <strong>Éditeur du site :</strong> RunLine (Entreprise individuelle)<br>
-        <strong>Responsable de publication :</strong> [Ton Prénom et Nom]<br>
-        <strong>Contact :</strong> [Ton adresse email]<br><br>
-        <strong>Hébergement :</strong> Ce site est hébergé par GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA.<br><br>
-        <strong>Activité :</strong> RunLine est une plateforme de mise en relation entre des passagers et des chauffeurs indépendants.
-      `;
-    } else if (type === 'confidentialite') {
-      title.innerText = "Politique de confidentialité (RGPD)";
-      content.innerHTML = `
-        <strong>1. Données collectées :</strong> Nous collectons votre adresse email, votre mot de passe (chiffré), et pour les chauffeurs, leurs documents professionnels (permis, carte VTC, assurance).<br><br>
-        <strong>2. Finalité :</strong> Ces données servent uniquement à créer votre compte, sécuriser la plateforme, vérifier la légalité des chauffeurs et traiter les paiements.<br><br>
-        <strong>3. Conservation :</strong> Vos données sont conservées tant que votre compte est actif, et jusqu'à 5 ans après sa fermeture (obligations légales).<br><br>
-        <strong>4. Vos droits :</strong> Conformément au RGPD, vous pouvez demander à consulter, modifier ou supprimer vos données en nous contactant.<br><br>
-        <strong>5. Paiements :</strong> Les transactions sont sécurisées par notre partenaire Stripe. RunLine ne stocke jamais vos numéros de carte bancaire.
-      `;
-    } else if (type === 'cgv') {
-      title.innerText = "Conditions Générales de Vente (CGV)";
-      content.innerHTML = `
-        <strong>1. Abonnement Chauffeur :</strong> L'accès au service pour les chauffeurs est facturé 4,99 € par semaine. Cet abonnement est sans engagement et résiliable à tout moment.<br><br>
-        <strong>2. Commission :</strong> RunLine prélève une commission fixe de 1,00 € par course effectuée.<br><br>
-        <strong>3. Paiement :</strong> Le paiement de l'abonnement s'effectue par carte bancaire via notre prestataire sécurisé. Aucun remboursement ne sera effectué pour une semaine entamée.<br><br>
-        <strong>4. Service :</strong> RunLine est un service de mise en relation. La prestation de transport est réalisée par le chauffeur indépendant.
-      `;
-    } else if (type === 'cgu') {
-      title.innerText = "Conditions Générales d'Utilisation (CGU)";
-      content.innerHTML = `
-        <strong>1. Statut de RunLine :</strong> RunLine est un intermédiaire technique. Nous ne sommes pas une entreprise de transport. Le contrat de transport est conclu directement entre le passager et le chauffeur.<br><br>
-        <strong>2. Responsabilité :</strong> RunLine met tout en œuvre pour vérifier les documents des chauffeurs (permis, VTC, assurance). Toutefois, en cas d'accident, la responsabilité civile incombe au chauffeur et à son assureur. RunLine ne peut être tenue responsable des dommages corporels ou matériels survenant lors du trajet.<br><br>
-        <strong>3. Obligations du chauffeur :</strong> Le chauffeur s'engage à maintenir ses documents à jour. Tout document expiré entraînera la suspension immédiate de son compte.<br><br>
-        <strong>4. Obligations du passager :</strong> Le passager s'engage à respecter le chauffeur et son véhicule.
-      `;
-    }
-  }
-
-  function closeModal() {
-    document.getElementById('legal-modal').style.display = 'none';
-  }
-
-  // === LANCEMENT ===
   checkAuth();
   client.auth.onAuthStateChange(() => checkAuth());
 </script>
