@@ -52,12 +52,6 @@
   .trip-card{background:#16161f;border:1px solid #26263a;border-radius:16px;padding:20px;margin-bottom:15px}
   .trip-card h3{font-size:16px;margin-bottom:15px;color:#fff}
   
-  /* SELECTEUR DATE & HEURE */
-  .date-time-box { display: flex; gap: 10px; margin-bottom: 15px; }
-  .date-picker, .time-picker { background: #16161f; border: 1px solid #26263a; border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; flex: 1; }
-  .date-picker input, .time-picker input { background: none; border: none; color: #fff; font-size: 14px; outline: none; width: 100%; }
-  .date-picker input::-webkit-calendar-picker-indicator, .time-picker input::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
-
   /* CARTE (Apparaît après calcul) */
   .map-container { display:none; height:180px; background:repeating-linear-gradient(45deg, #1a1a2e, #1a1a2e 10px, #16161f 10px, #16161f 20px); border-radius:16px; border:1px solid #26263a; margin-top:20px; margin-bottom:15px; position:relative; overflow:hidden; align-items:center; justify-content:center; color:#4a4a5e; font-size:12px; font-weight:600; }
   .map-container::after { content:'🗺️ Trajet estimé (Carte bientôt disponible)'; position:relative; z-index:1; }
@@ -189,16 +183,6 @@
         <div class="input-group"><label>Départ</label><input id="depart" value="Tour Eiffel"></div>
         <div class="input-group"><label>Arrivée</label><input id="arrivee" value="Gare du Nord"></div>
         
-        <!-- DATE & HEURE -->
-        <div class="date-time-box">
-          <div class="date-picker">
-            <input type="date" id="date-resa">
-          </div>
-          <div class="time-picker">
-            <input type="time" id="time-resa">
-          </div>
-        </div>
-
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <div class="input-group"><label>Distance (km)</label><input id="km" type="number" value="5"></div>
           <div class="input-group"><label>Durée (min)</label><input id="min" type="number" value="15"></div>
@@ -314,7 +298,7 @@
       </div>
     </div>
 
-    <!-- PROFIL (Avec le pied de page ICI uniquement) -->
+    <!-- PROFIL -->
     <div class="screen-content" id="screen-profil">
       <div class="trip-card">
         <h3>Mon profil</h3>
