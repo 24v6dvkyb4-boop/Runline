@@ -35,8 +35,8 @@
   .header .logo{font-size:22px;font-weight:900;letter-spacing:-1px}
   .header .logo span{background:linear-gradient(135deg,#ffd166,#ff9f1c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   
-  /* CARTE */
-  #map-container{height:250px;border-radius:20px;border:1px solid #26263a;margin-bottom:20px;overflow:hidden;position:relative;z-index:1; background:#16161f;}
+  /* CARTE (cachée par défaut) */
+  #map-container{height:250px;border-radius:20px;border:1px solid #26263a;margin-bottom:20px;overflow:hidden;position:relative;z-index:1; background:#16161f; display: none;}
   .leaflet-layer { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
   
   /* HERO CARD */
@@ -121,11 +121,12 @@
   .screen-content { display: none; }
 
   /* FOOTER */
-  .footer{text-align:center; padding: 30px 20px 20px; border-top: 1px solid #26263a; margin-top: 30px;}
-  .footer p{font-size: 11px; color: #4a4a5e; margin-bottom: 8px;}
-  .footer .links{display:flex; justify-content:center; gap:12px; font-size:10px;}
+  .footer{text-align:left; padding: 20px 0; border-top: 1px solid #26263a; margin-top: 30px;}
+  .footer .menu-title { display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding-bottom:10px; border-bottom:1px solid #1f1f2e; font-size:13px; font-weight:600; color:#fff; letter-spacing:1px;}
+  .footer .menu-icon { color:#ffd166; font-size:18px; }
+  .footer .menu-content { display:none; padding-top:10px; flex-direction:column; gap:10px; font-size:12px;}
   .footer a{color:#8b8b9e; text-decoration:none;}
-  .footer .secure-tag{margin-top:10px; font-size:10px; color:#22d3ee;}
+  .footer a:hover{color:#ffd166;}
 
   .spinner{display:inline-block; width:16px; height:16px; border:2px solid rgba(0,0,0,0.3); border-radius:50%; border-top-color:#000; animation: spin 1s ease-in-out infinite; margin-left:8px;}
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -139,6 +140,13 @@
   .ai-bubble { background: #1a1a2e; border: 1px solid #22d3ee; border-radius: 12px; padding: 12px; font-size: 12px; color: #22d3ee; margin-top: 15px; display: none; }
   .ai-bubble.show { display: block; animation: fadeIn 0.3s; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* MODAL LÉGALE */
+  #legal-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center; padding:20px; }
+  .modal-content-box { background:#16161f; border:1px solid #26263a; border-radius:16px; padding:20px; max-width:400px; width:100%; max-height:80vh; overflow-y:auto; position:relative; }
+  .modal-close { position:absolute; top:15px; right:15px; background:none; border:none; color:#fff; font-size:20px; cursor:pointer; }
+  .modal-title { font-size:18px; color:#ffd166; margin-bottom:15px; }
+  .modal-text { font-size:12px; color:#c4c4d4; line-height:1.6; }
 </style>
 </head>
 <body>
@@ -308,7 +316,7 @@
       </div>
     </div>
 
-    <!-- PROFIL -->
+    <!-- PROFIL (avec le pied de page) -->
     <div class="screen-content" id="screen-profil">
       <div class="trip-card">
         <h3>Mon profil</h3>
@@ -316,6 +324,52 @@
         <div class="input-group"><label>Nom complet</label><input placeholder="Votre nom"></div>
         <div class="input-group"><label>Téléphone</label><input placeholder="+33 6 00 00 00 00"></div>
         <button class="btn btn-primary" style="margin-top:10px;">Mettre à jour</button>
+      </div>
+
+      <!-- LE PIED DE PAGE (Politiques) -->
+      <div class="footer">
+        <div style="margin-bottom:20px;">
+          <div class="menu-title" onclick="toggleFooterMenu('menu-runline')">
+            <span>MENU RUNLINE</span>
+            <span id="icon-menu-runline" class="menu-icon">+</span>
+          </div>
+          <div id="menu-runline" class="menu-content">
+            <a href="#">Accueil</a>
+            <a href="#">Devenir chauffeur</a>
+            <a href="#">Tarifs et commissions</a>
+          </div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <div class="menu-title" onclick="toggleFooterMenu('menu-client')">
+            <span>MENU CLIENT</span>
+            <span id="icon-menu-client" class="menu-icon">+</span>
+          </div>
+          <div id="menu-client" class="menu-content">
+            <a href="#">Mon profil</a>
+            <a href="#">Mes courses</a>
+            <a href="#">Contactez-nous</a>
+          </div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <div class="menu-title" onclick="toggleFooterMenu('menu-politiques')">
+            <span>POLITIQUES</span>
+            <span id="icon-menu-politiques" class="menu-icon">+</span>
+          </div>
+          <div id="menu-politiques" class="menu-content">
+            <a href="#" onclick="openModal('mentions')">Mentions légales</a>
+            <a href="#" onclick="openModal('confidentialite')">Politique de confidentialité (RGPD)</a>
+            <a href="#" onclick="openModal('cgv')">Conditions Générales de Vente (CGV)</a>
+            <a href="#" onclick="openModal('cgu')">Conditions Générales d'Utilisation (CGU)</a>
+          </div>
+        </div>
+
+        <div style="text-align:center; margin-top:30px;">
+          <div style="font-size:20px; font-weight:900; letter-spacing:-1px; margin-bottom:10px;">RUN<span style="color:#ffd166;">LINE</span></div>
+          <p style="font-size: 10px; color: #4a4a5e; margin-bottom: 8px;">© 2026 RunLine. Tous droits réservés.</p>
+          <div class="secure-tag" style="font-size:10px; color:#22d3ee;">🔒 Paiement sécurisé · Données chiffrées AES-256</div>
+        </div>
       </div>
     </div>
     
@@ -380,21 +434,13 @@
     </div>
   </div>
 
-  <!-- NAVIGATION -->
-  <div class="bottom-nav" id="bottom-nav">
-    <button class="active" onclick="showTab('passager', this)"><span>🚗</span>Passager</button>
-    <button onclick="showTab('chauffeur', this)"><span>🛡️</span>Chauffeur</button>
-    <button onclick="showTab('historique', this)"><span>🧾</span>Courses</button>
-    <button onclick="showTab('profil', this)"><span>👤</span>Profil</button>
+  <!-- MODAL LÉGALE -->
+  <div id="legal-modal">
+    <div class="modal-content-box">
+         <button onclick="closeModal()" class="modal-close">✕</button>
+    <h2 id="modal-title" class="modal-title">Titre</h2>
+    <div id="modal-content" class="modal-text"></div>
   </div>
-
-  <!-- FOOTER -->
-  <div class="footer" id="main-footer">
-    <p>© 2026 RunLine. Tous droits réservés.</p>
-    <div class="links"><a href="#">Mentions légales</a><a href="#">Politique de confidentialité</a><a href="#">CGU</a></div>
-    <div class="secure-tag">🔒 Paiement sécurisé · Données chiffrées AES-256</div>
-  </div>
-
 </div>
 
 <script>
@@ -410,7 +456,7 @@
   let arriveeMarker = null;
   let selectedPaymentMethod = 'cb';
 
-  // === INITIALISATION DE LA CARTE ===
+  // === INITIALISATION DE LA CARTE (Cachée par défaut) ===
   function initMap() {
     map = L.map('map-container', { zoomControl: false }).setView([46.603354, 1.888334], 6);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -427,14 +473,12 @@
       document.getElementById('auth-screen').style.display = 'none';
       document.getElementById('app-screen').style.display = 'block';
       document.getElementById('bottom-nav').style.display = 'flex';
-      document.getElementById('main-footer').style.display = 'block';
       document.getElementById('user-email').innerText = session.user.email;
       setTimeout(initMap, 100); 
     } else {
       document.getElementById('auth-screen').style.display = 'flex';
       document.getElementById('app-screen').style.display = 'none';
       document.getElementById('bottom-nav').style.display = 'none';
-      document.getElementById('main-footer').style.display = 'none';
     }
   }
 
@@ -470,7 +514,7 @@
     checkAuth();
   }
 
-  // === CALCUL DU TRAJET (CARTE) ===
+  // === CALCUL DU TRAJET (AFFICHE LA CARTE) ===
   async function calcRoute() {
     const depart = document.getElementById('depart').value;
     const arrivee = document.getElementById('arrivee').value;
@@ -481,6 +525,9 @@
     
     btn.innerHTML = 'Estimation... <div class="spinner"></div>';
     btn.disabled = true;
+
+    // C'est ICI qu'on affiche la carte
+    document.getElementById('map-container').style.display = 'block';
 
     try {
         const geoDepart = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${depart}`).then(r => r.json());
@@ -536,6 +583,7 @@
         console.error(error);
         document.getElementById('result-box').style.display = 'none';
         document.getElementById('btn-commander').style.display = 'none';
+        document.getElementById('map-container').style.display = 'none'; // On cache la carte en cas d'erreur
     } finally {
         btn.innerHTML = 'Estimer le prix';
         btn.disabled = false;
@@ -582,7 +630,6 @@
     document.getElementById('screen-passager').style.display = 'none';
     document.getElementById('screen-recherche').style.display = 'block';
 
-    // Afficher l'IA au bout de 3 secondes
     setTimeout(() => {
         document.getElementById('ai-bubble').classList.add('show');
     }, 3000);
@@ -647,6 +694,67 @@
       if(iconSpan) { iconSpan.innerText = "✅"; iconSpan.style.color = "#22d3ee"; }
       alert("Document envoyé avec succès !");
     }
+  }
+
+  // === MENU ACCORDÉON FOOTER ===
+  function toggleFooterMenu(id) {
+    const menu = document.getElementById(id);
+    const icon = document.getElementById('icon-' + id);
+    if (menu.style.display === 'none' || menu.style.display === '') {
+      menu.style.display = 'flex';
+      icon.innerText = '−';
+    } else {
+      menu.style.display = 'none';
+      icon.innerText = '+';
+    }
+  }
+
+  // === MODAL LÉGALE ===
+  function openModal(type) {
+    const modal = document.getElementById('legal-modal');
+    const title = document.getElementById('modal-title');
+    const content = document.getElementById('modal-content');
+    modal.style.display = 'flex';
+
+    if (type === 'mentions') {
+      title.innerText = "Mentions légales";
+      content.innerHTML = `
+        <strong>Éditeur du site :</strong> RunLine (Entreprise individuelle)<br>
+        <strong>Responsable de publication :</strong> [Ton Prénom et Nom]<br>
+        <strong>Contact :</strong> [Ton adresse email]<br><br>
+        <strong>Hébergement :</strong> Ce site est hébergé par GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA.<br><br>
+        <strong>Activité :</strong> RunLine est une plateforme de mise en relation entre des passagers et des chauffeurs indépendants.
+      `;
+    } else if (type === 'confidentialite') {
+      title.innerText = "Politique de confidentialité (RGPD)";
+      content.innerHTML = `
+        <strong>1. Données collectées :</strong> Nous collectons votre adresse email, votre mot de passe (chiffré), et pour les chauffeurs, leurs documents professionnels (permis, carte VTC, assurance).<br><br>
+        <strong>2. Finalité :</strong> Ces données servent uniquement à créer votre compte, sécuriser la plateforme, vérifier la légalité des chauffeurs et traiter les paiements.<br><br>
+        <strong>3. Conservation :</strong> Vos données sont conservées tant que votre compte est actif, et jusqu'à 5 ans après sa fermeture (obligations légales).<br><br>
+        <strong>4. Vos droits :</strong> Conformément au RGPD, vous pouvez demander à consulter, modifier ou supprimer vos données en nous contactant.<br><br>
+        <strong>5. Paiements :</strong> Les transactions sont sécurisées par notre partenaire Stripe. RunLine ne stocke jamais vos numéros de carte bancaire.
+      `;
+    } else if (type === 'cgv') {
+      title.innerText = "Conditions Générales de Vente (CGV)";
+      content.innerHTML = `
+        <strong>1. Abonnement Chauffeur :</strong> L'accès au service pour les chauffeurs est facturé 4,99 € par semaine. Cet abonnement est sans engagement et résiliable à tout moment.<br><br>
+        <strong>2. Commission :</strong> RunLine prélève une commission fixe de 1,00 € par course effectuée.<br><br>
+        <strong>3. Paiement :</strong> Le paiement de l'abonnement s'effectue par carte bancaire via notre prestataire sécurisé. Aucun remboursement ne sera effectué pour une semaine entamée.<br><br>
+        <strong>4. Service :</strong> RunLine est un service de mise en relation. La prestation de transport est réalisée par le chauffeur indépendant.
+      `;
+    } else if (type === 'cgu') {
+      title.innerText = "Conditions Générales d'Utilisation (CGU)";
+      content.innerHTML = `
+        <strong>1. Statut de RunLine :</strong> RunLine est un intermédiaire technique. Nous ne sommes pas une entreprise de transport. Le contrat de transport est conclu directement entre le passager et le chauffeur.<br><br>
+        <strong>2. Responsabilité :</strong> RunLine met tout en œuvre pour vérifier les documents des chauffeurs (permis, VTC, assurance). Toutefois, en cas d'accident, la responsabilité civile incombe au chauffeur et à son assureur. RunLine ne peut être tenue responsable des dommages corporels ou matériels survenant lors du trajet.<br><br>
+        <strong>3. Obligations du chauffeur :</strong> Le chauffeur s'engage à maintenir ses documents à jour. Tout document expiré entraînera la suspension immédiate de son compte.<br><br>
+        <strong>4. Obligations du passager :</strong> Le passager s'engage à respecter le chauffeur et son véhicule.
+      `;
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('legal-modal').style.display = 'none';
   }
 
   // === LANCEMENT ===
