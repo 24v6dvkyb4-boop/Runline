@@ -154,10 +154,10 @@
 
         <div class="input-group"><label>Départ</label><input id="depart" value="Tour Eiffel"></div>
         <div class="input-group"><label>Arrivée</label><input id="arrivee" value="Gare du Nord"></div>
-        
-        <!-- LA CARTE EST ICI -->
-        <div id="map" style="height: 200px; border-radius: 12px; margin-bottom: 15px; display: none; border: 1px solid #26263a;"></div>
-
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="input-group"><label>Distance (km)</label><input id="km" type="number" value="5"></div>
+          <div class="input-group"><label>Durée (min)</label><input id="min" type="number" value="15"></div>
+        </div>
         <button class="btn btn-primary" style="margin-top:10px" onclick="calcPrice()">Estimer le prix</button>
         
         <div class="result-box" id="result-box">
@@ -361,10 +361,10 @@
     calcPrice(); // Recalcule automatiquement le prix
   }
 
-  // === CALCUL DU PRIX (Avec simulation de carte) ===
+  // === CALCUL DU PRIX ===
   function calcPrice() {
-    const km = 5; // Simulation
-    const min = 15; // Simulation
+    const km = parseFloat(document.getElementById('km').value) || 0;
+    const min = parseFloat(document.getElementById('min').value) || 0;
     const base = 1.50;
     const prixKm = km * 1.00;
     const prixMin = min * 0.15;
@@ -372,24 +372,15 @@
     const commission = 1.00;
     const chauffeur = total - commission;
 
-    document.getElementById('lbl-km').innerText = `Distance estimée`;
+    document.getElementById('lbl-km').innerText = `Distance (${km} km)`;
     document.getElementById('res-km').innerText = prixKm.toFixed(2).replace('.', ',') + '€';
-    document.getElementById('lbl-min').innerText = `Durée estimée`;
+    document.getElementById('lbl-min').innerText = `Durée (${min} min)`;
     document.getElementById('res-min').innerText = prixMin.toFixed(2).replace('.', ',') + '€';
     document.getElementById('res-total').innerText = total.toFixed(2).replace('.', ',') + '€';
     document.getElementById('res-chauffeur').innerText = chauffeur.toFixed(2).replace('.', ',') + '€';
     
     document.getElementById('result-box').style.display = 'block';
-    document.getElementById('btn-commander').style.display = 'block';
-    
-    // On affiche la carte simulée
-    document.getElementById('map').style.display = 'block';
-    document.getElementById('map').style.background = 'repeating-linear-gradient(45deg, #1a1a2e, #1a1a2e 10px, #16161f 10px, #16161f 20px)';
-    document.getElementById('map').style.color = '#8b8b9e';
-    document.getElementById('map').style.display = 'flex';
-    document.getElementById('map').style.alignItems = 'center';
-    document.getElementById('map').style.justifyContent = 'center';
-    document.getElementById('map').innerHTML = '🗺️ Carte du trajet (simulation)';
+    document.getElementById('btn-commander').style.display = 'block'; // Affiche le bouton commander
   }
 
   // === RECHERCHE CHAUFFEUR ===
@@ -401,7 +392,8 @@
     document.getElementById('recap-trajet').innerText = `${depart} ➔ ${arrivee}`;
     document.getElementById('recap-prix').innerText = prix;
     
-    document.querySelectorAll('.screen-content').forEach(s => s.style.display = 'none');
+    showTab('recherche', document.querySelector('.bottom-nav button.active')); // Reste sur l'onglet actif mais change l'écran
+    document.getElementById('screen-passager').style.display = 'none';
     document.getElementById('screen-recherche').style.display = 'block';
   }
 
@@ -466,4 +458,3 @@
 </script>
 </body>
 </html>
-
