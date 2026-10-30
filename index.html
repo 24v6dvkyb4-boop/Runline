@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RunLine — Transport Premium</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Segoe UI',sans-serif}
   body{background:#0a0a0f;color:#fff;min-height:100vh;display:flex;justify-content:center}
@@ -32,6 +34,10 @@
   .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
   .header .logo{font-size:22px;font-weight:900;letter-spacing:-1px}
   .header .logo span{background:linear-gradient(135deg,#ffd166,#ff9f1c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  
+  /* CARTE */
+  #map-container{height:250px;border-radius:20px;border:1px solid #26263a;margin-bottom:20px;overflow:hidden;position:relative;z-index:1; background:#16161f;}
+  .leaflet-layer { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
   
   /* HERO CARD */
   .hero{background:linear-gradient(135deg,#ffd166,#ff9f1c);color:#1a1a2e;border-radius:20px;padding:22px;margin-bottom:20px;position:relative;overflow:hidden}
@@ -79,6 +85,33 @@
   .offline{background:#26263a;color:#8b8b9e;}
   .online{background:#22d3ee;color:#0a0a0f;}
 
+  /* BOUTONS SECURITE */
+  .security-actions { display: flex; gap: 10px; margin-top: 15px; }
+  .sec-btn { flex: 1; background: #1a1a2e; border: 1px solid #ef4444; color: #ef4444; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
+  .sec-btn.share { border-color: #22d3ee; color: #22d3ee; }
+  .sec-btn.call { border-color: #ffd166; color: #ffd166; }
+  .sec-btn.audio { border-color: #8b5cf6; color: #8b5cf6; }
+  .sec-btn:active { opacity: 0.7; }
+
+  /* NOUVEAUX CHAMPS FORMULAIRE */
+  .select-group{background:#16161f;border:1px solid #26263a;border-radius:12px;padding:14px;margin-bottom:12px; display: flex; flex-direction: column;}
+  .select-group label{font-size:10px;color:#8b8b9e;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:5px;}
+  .select-group select {background:none;border:none;outline:none;color:#fff;font-size:14px;width:100%;-webkit-appearance:none;}
+  .select-group select option { background: #16161f; color: #fff; }
+
+  /* MODAL DE PAIEMENT */
+  .payment-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(5px); }
+  .payment-sheet { background: #16161f; width: 100%; max-width: 420px; border-radius: 24px 24px 0 0; padding: 25px 20px; border-top: 1px solid #26263a; animation: slideUp 0.3s ease-out; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .payment-sheet h3 { font-size: 18px; margin-bottom: 20px; text-align: center; }
+  .pay-method { display: flex; align-items: center; justify-content: space-between; background: #0f0f16; border: 1px solid #26263a; padding: 16px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+  .pay-method:hover { border-color: #ffd166; }
+  .pay-method.active { border-color: #ffd166; background: rgba(255,209,102,0.1); }
+  .pay-method .icon { font-size: 24px; margin-right: 15px; }
+  .pay-method .name { flex: 1; font-size: 14px; font-weight: 600; }
+  .pay-method .check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #26263a; }
+  .pay-method.active .check { background: #ffd166; border-color: #ffd166; box-shadow: inset 0 0 0 4px #16161f; }
+
   /* NAV */
   .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#16161f;border-top:1px solid #26263a;display:none;justify-content:space-around;padding:12px 0;max-width:400px;margin:0 auto;z-index:100}
   .bottom-nav button{background:none;border:none;color:#4a4a5e;font-size:11px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
@@ -94,9 +127,18 @@
   .footer a{color:#8b8b9e; text-decoration:none;}
   .footer .secure-tag{margin-top:10px; font-size:10px; color:#22d3ee;}
 
-  /* ANIMATION RECHERCHE CHAUFFEUR */
-  .searching-anim{width:100px; height:100px; border:4px solid rgba(255,209,102,.2); border-top:4px solid #ffd166; border-radius:50%; margin: 0 auto 20px; animation: spin 1s linear infinite;}
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  .spinner{display:inline-block; width:16px; height:16px; border:2px solid rgba(0,0,0,0.3); border-radius:50%; border-top-color:#000; animation: spin 1s ease-in-out infinite; margin-left:8px;}
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* MARQUEURS PERSONNALISÉS */
+  .custom-pin { display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; color: white; font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000 !important; }
+  .pin-depart { background: #22d3ee; width: 30px; height: 30px; }
+  .pin-arrivee { background: #ffd166; width: 30px; height: 30px; color: #1a1a2e; }
+  
+  /* IA Assistant */
+  .ai-bubble { background: #1a1a2e; border: 1px solid #22d3ee; border-radius: 12px; padding: 12px; font-size: 12px; color: #22d3ee; margin-top: 15px; display: none; }
+  .ai-bubble.show { display: block; animation: fadeIn 0.3s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
@@ -143,55 +185,54 @@
         <div class="big">1€<small> /course</small></div>
       </div>
 
+      <div id="map-container"></div>
+
       <div class="trip-card">
         <h3>Où allez-vous ?</h3>
         
-        <!-- BOUTONS FAVORIS -->
         <div class="fav-row">
-          <div class="fav-btn" onclick="setFav('Tour Eiffel', 'Maison')">🏠 Maison</div>
-          <div class="fav-btn" onclick="setFav('La Défense', 'Travail')">💼 Travail</div>
+          <div class="fav-btn" onclick="setFav('Tour Eiffel', 'La Défense')">🏠 Maison</div>
+          <div class="fav-btn" onclick="setFav('La Défense', 'Tour Eiffel')">💼 Travail</div>
         </div>
 
-        <div class="input-group"><label>Départ</label><input id="depart" value="Tour Eiffel"></div>
-        <div class="input-group"><label>Arrivée</label><input id="arrivee" value="Gare du Nord"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="input-group"><label>Distance (km)</label><input id="km" type="number" value="5"></div>
-          <div class="input-group"><label>Durée (min)</label><input id="min" type="number" value="15"></div>
+        <div class="input-group"><label>Départ</label><input id="depart" value="Paris"></div>
+        <div class="input-group"><label>Arrivée</label><input id="arrivee" value="Marseille"></div>
+        
+        <div class="select-group">
+          <label>Type de véhicule</label>
+          <select id="type-vehicule">
+            <option value="standard">🚗 Standard (Économique)</option>
+            <option value="van">🚐 Van (Groupes/Bagages)</option>
+          </select>
         </div>
-        <button class="btn btn-primary" style="margin-top:10px" onclick="calcPrice()">Estimer le prix</button>
+
+        <div class="select-group">
+          <label>Quand ?</label>
+          <select id="quand-reserver">
+            <option value="now">Maintenant (Dès que possible)</option>
+            <option value="30m">Dans 30 minutes</option>
+            <option value="1h">Dans 1 heure</option>
+            <option value="demain">Demain matin (8h00)</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary" id="btn-calc" style="margin-top:10px" onclick="calcRoute()">Estimer le prix</button>
         
         <div class="result-box" id="result-box">
-          <div class="res-row"><span>Prise en charge</span><b>1,50€</b></div>
-          <div class="res-row"><span id="lbl-km">Distance</span><b id="res-km">0,00€</b></div>
-          <div class="res-row"><span id="lbl-min">Durée</span><b id="res-min">0,00€</b></div>
+          <div class="res-row"><span>Distance</span><b id="res-km">-</b></div>
+          <div class="res-row"><span>Durée (avec trafic)</span><b id="res-min">-</b></div>
           <div class="res-row total"><span>Prix total</span><b id="res-total">0,00€</b></div>
           <div class="res-row" style="color:#22d3ee;font-size:11px"><span>Commission RunLine</span><b>1,00€</b></div>
           <div class="res-row" style="font-size:11px"><span>Le chauffeur reçoit</span><b id="res-chauffeur">0,00€</b></div>
         </div>
         
-        <button class="btn btn-primary" id="btn-commander" style="display:none;margin-top:15px;background:#22d3ee;" onclick="startSearch()">Commander ce trajet</button>
+        <button class="btn btn-primary" id="btn-commander" style="display:none;margin-top:15px;background:#22d3ee;" onclick="openPaymentModal()">Commander ce trajet</button>
       </div>
 
       <div class="stats">
         <div class="stat"><b>1€</b><span>Commission</span></div>
         <div class="stat"><b>4,99€</b><span>Abo/sem</span></div>
         <div class="stat"><b>0€</b><span>Passager</span></div>
-      </div>
-    </div>
-
-    <!-- RECHERCHE CHAUFFEUR -->
-    <div class="screen-content" id="screen-recherche">
-      <div style="text-align:center; padding-top: 50px;">
-        <div class="searching-anim"></div>
-        <h2 style="font-size:20px; margin-bottom:10px;">Recherche d'un chauffeur...</h2>
-        <p style="color:#8b8b9e; font-size:14px; margin-bottom:30px;">Veuillez patienter quelques instants.</p>
-        
-        <div class="trip-card" style="text-align:left;">
-          <p style="font-size:14px; color:#fff; margin-bottom:5px;">Votre trajet :</p>
-          <p id="recap-trajet" style="font-size:13px; color:#8b8b9e; margin-bottom:15px;"></p>
-          <p style="font-size:14px; color:#22d3ee; font-weight:700;">Prix : <span id="recap-prix"></span></p>
-        </div>
-        <button class="btn btn-outline" style="margin-top:20px;" onclick="annulerRecherche()">Annuler</button>
       </div>
     </div>
 
@@ -277,6 +318,66 @@
         <button class="btn btn-primary" style="margin-top:10px;">Mettre à jour</button>
       </div>
     </div>
+    
+    <!-- RECHERCHE / COURSE EN COURS -->
+    <div class="screen-content" id="screen-recherche">
+      <div style="text-align:center; padding-top: 20px;">
+        <div class="spinner" style="width: 40px; height: 40px; border-width: 4px; border-top-color: #ffd166; margin: 0 auto 20px;"></div>
+        <h2 style="font-size:20px; margin-bottom:10px;">Recherche d'un chauffeur...</h2>
+        <p style="color:#8b8b9e; font-size:13px;">Veuillez patienter.</p>
+      </div>
+
+      <div class="trip-card" style="margin-top:20px; text-align:left;">
+        <p style="font-size:14px; color:#fff; margin-bottom:5px;">Votre trajet :</p>
+        <p id="recap-trajet" style="font-size:13px; color:#8b8b9e; margin-bottom:15px;"></p>
+        <p style="font-size:14px; color:#22d3ee; font-weight:700; margin-bottom:15px;">Prix : <span id="recap-prix"></span></p>
+
+        <div class="security-actions">
+          <button class="sec-btn" onclick="alert('🚨 Bouton d\'urgence activé. Les secours et votre contact d\'urgence sont prévenus.')">🚨 SOS</button>
+          <button class="sec-btn share" onclick="alert('🔗 Lien de partage copié ! Envoyez-le à un proche pour qu\'il suive votre trajet.')">🔗 Partager</button>
+          <button class="sec-btn call" onclick="alert('📞 Appel masqué en cours vers le chauffeur...')">📞 Appeler</button>
+        </div>
+        
+        <div class="security-actions" style="margin-top:10px;">
+          <button class="sec-btn audio" onclick="alert('🎙️ Enregistrement audio activé pour cette course.')">🎙️ Enregistrer l'audio</button>
+        </div>
+
+        <div class="ai-bubble" id="ai-bubble">
+          <strong>🤖 Assistant RunLine :</strong> Votre chauffeur arrive dans 3 min. Il est en Peugeot 308 grise. N'oubliez pas de vérifier la plaque avant de monter.
+        </div>
+
+        <button class="btn btn-outline" style="margin-top:20px;" onclick="annulerRecherche()">Annuler la course</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL DE PAIEMENT -->
+  <div class="payment-overlay" id="payment-modal">
+    <div class="payment-sheet">
+      <h3>💳 Choisir le mode de paiement</h3>
+      
+      <div class="pay-method active" onclick="selectPay(this, 'cb')">
+        <span class="icon">💳</span>
+        <span class="name">Carte bancaire (Visa, Mastercard)</span>
+        <div class="check"></div>
+      </div>
+      
+      <div class="pay-method" onclick="selectPay(this, 'cash')">
+        <span class="icon">💶</span>
+        <span class="name">Espèces (à bord)</span>
+        <div class="check"></div>
+      </div>
+      
+      <div class="pay-method" onclick="selectPay(this, 'paypal')">
+        <span class="icon">🅿️</span>
+        <span class="name">PayPal</span>
+        <div class="check"></div>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top: 20px;" onclick="confirmPayment()">Confirmer et payer</button>
+      <button class="btn btn-outline" onclick="closePaymentModal()">Annuler</button>
+    </div>
   </div>
 
   <!-- NAVIGATION -->
@@ -287,24 +388,39 @@
     <button onclick="showTab('profil', this)"><span>👤</span>Profil</button>
   </div>
 
-  <!-- PIED DE PAGE -->
+  <!-- FOOTER -->
   <div class="footer" id="main-footer">
     <p>© 2026 RunLine. Tous droits réservés.</p>
-    <div class="links">
-      <a href="#">Mentions légales</a>
-      <a href="#">Politique de confidentialité</a>
-      <a href="#">CGU</a>
-    </div>
-    <div class="secure-tag">🔒 Paiement sécurisé par Stripe · Données chiffrées AES-256</div>
+    <div class="links"><a href="#">Mentions légales</a><a href="#">Politique de confidentialité</a><a href="#">CGU</a></div>
+    <div class="secure-tag">🔒 Paiement sécurisé · Données chiffrées AES-256</div>
   </div>
 
 </div>
 
 <script>
+  // === CONFIGURATION SUPABASE ===
   const supabaseUrl = "https://magtyeybfufywqbevaux.supabase.co";
   const supabaseKey = "sb_publishable_543lDfIDZ-lpsP6w9xiO8A_2BRveCmE";
   const client = supabase.createClient(supabaseUrl, supabaseKey);
 
+  // === VARIABLES GLOBALES ===
+  let map;
+  let routingLayer = null;
+  let departMarker = null;
+  let arriveeMarker = null;
+  let selectedPaymentMethod = 'cb';
+
+  // === INITIALISATION DE LA CARTE ===
+  function initMap() {
+    map = L.map('map-container', { zoomControl: false }).setView([46.603354, 1.888334], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(map);
+    L.control.zoom({ position: 'topright' }).addTo(map);
+  }
+
+  // === AUTHENTIFICATION SUPABASE ===
   async function checkAuth() {
     const { data: { session } } = await client.auth.getSession();
     if (session) {
@@ -313,6 +429,7 @@
       document.getElementById('bottom-nav').style.display = 'flex';
       document.getElementById('main-footer').style.display = 'block';
       document.getElementById('user-email').innerText = session.user.email;
+      setTimeout(initMap, 100); 
     } else {
       document.getElementById('auth-screen').style.display = 'flex';
       document.getElementById('app-screen').style.display = 'none';
@@ -353,53 +470,142 @@
     checkAuth();
   }
 
-  // === FAVORIS ===
-  function setFav(destination, type) {
-    document.getElementById('arrivee').value = destination;
-    if(type === 'Maison') document.getElementById('depart').value = "La Défense"; // Exemple
-    if(type === 'Travail') document.getElementById('depart').value = "Tour Eiffel"; // Exemple
-    calcPrice(); // Recalcule automatiquement le prix
-  }
-
-  // === CALCUL DU PRIX ===
-  function calcPrice() {
-    const km = parseFloat(document.getElementById('km').value) || 0;
-    const min = parseFloat(document.getElementById('min').value) || 0;
-    const base = 1.50;
-    const prixKm = km * 1.00;
-    const prixMin = min * 0.15;
-    const total = base + prixKm + prixMin;
-    const commission = 1.00;
-    const chauffeur = total - commission;
-
-    document.getElementById('lbl-km').innerText = `Distance (${km} km)`;
-    document.getElementById('res-km').innerText = prixKm.toFixed(2).replace('.', ',') + '€';
-    document.getElementById('lbl-min').innerText = `Durée (${min} min)`;
-    document.getElementById('res-min').innerText = prixMin.toFixed(2).replace('.', ',') + '€';
-    document.getElementById('res-total').innerText = total.toFixed(2).replace('.', ',') + '€';
-    document.getElementById('res-chauffeur').innerText = chauffeur.toFixed(2).replace('.', ',') + '€';
+  // === CALCUL DU TRAJET (CARTE) ===
+  async function calcRoute() {
+    const depart = document.getElementById('depart').value;
+    const arrivee = document.getElementById('arrivee').value;
+    const btn = document.getElementById('btn-calc');
+    const typeVehicule = document.getElementById('type-vehicule').value;
     
-    document.getElementById('result-box').style.display = 'block';
-    document.getElementById('btn-commander').style.display = 'block'; // Affiche le bouton commander
+    if(!depart || !arrivee) return;
+    
+    btn.innerHTML = 'Estimation... <div class="spinner"></div>';
+    btn.disabled = true;
+
+    try {
+        const geoDepart = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${depart}`).then(r => r.json());
+        const geoArrivee = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${arrivee}`).then(r => r.json());
+        
+        if(geoDepart.length === 0 || geoArrivee.length === 0) throw new Error("Ville introuvable");
+
+        const lat1 = geoDepart[0].lat; const lon1 = geoDepart[0].lon;
+        const lat2 = geoArrivee[0].lat; const lon2 = geoArrivee[0].lon;
+
+        const route = await fetch(`https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`).then(r => r.json());
+        
+        if(route.code !== 'Ok') throw new Error("Erreur de trajet");
+
+        const distanceKm = route.routes[0].distance / 1000;
+        const dureeMin = route.routes[0].duration / 60;
+        
+        let multiplier = 1.0;
+        if(typeVehicule === 'van') multiplier = 1.5;
+
+        const base = 1.50 * multiplier;
+        const prixKm = distanceKm * (1.00 * multiplier);
+        const prixMin = dureeMin * (0.15 * multiplier);
+        const total = base + prixKm + prixMin;
+        const commission = 1.00;
+        const chauffeur = total - commission;
+
+        document.getElementById('res-km').innerText = distanceKm.toFixed(1) + " km";
+        document.getElementById('res-min').innerText = Math.round(dureeMin) + " min";
+        document.getElementById('res-total').innerText = total.toFixed(2).replace('.', ',') + '€';
+        document.getElementById('res-chauffeur').innerText = chauffeur.toFixed(2).replace('.', ',') + '€';
+        
+        document.getElementById('result-box').style.display = 'block';
+        document.getElementById('btn-commander').style.display = 'block';
+
+        if (routingLayer) map.removeLayer(routingLayer);
+        if (departMarker) map.removeLayer(departMarker);
+        if (arriveeMarker) map.removeLayer(arriveeMarker);
+
+        const departIcon = L.divIcon({ className: 'custom-pin pin-depart', html: 'D', iconSize: [30, 30], iconAnchor: [15, 15] });
+        departMarker = L.marker([lat1, lon1], { icon: departIcon }).addTo(map);
+
+        const arriveeIcon = L.divIcon({ className: 'custom-pin pin-arrivee', html: 'A', iconSize: [30, 30], iconAnchor: [15, 15] });
+        arriveeMarker = L.marker([lat2, lon2], { icon: arriveeIcon }).addTo(map);
+
+        routingLayer = L.geoJSON(route.routes[0].geometry, {
+            style: { color: '#ffd166', weight: 6, opacity: 1, lineCap: 'round', lineJoin: 'round' }
+        }).addTo(map);
+        
+        map.fitBounds(routingLayer.getBounds(), { padding: [30, 30] });
+
+    } catch (error) {
+        console.error(error);
+        document.getElementById('result-box').style.display = 'none';
+        document.getElementById('btn-commander').style.display = 'none';
+    } finally {
+        btn.innerHTML = 'Estimer le prix';
+        btn.disabled = false;
+    }
   }
 
-  // === RECHERCHE CHAUFFEUR ===
+  // === FAVORIS ===
+  function setFav(dest, depart) {
+    document.getElementById('arrivee').value = dest;
+    document.getElementById('depart').value = depart;
+    calcRoute();
+  }
+
+  // === PAIEMENT ET COMMANDE ===
+  function openPaymentModal() {
+    document.getElementById('payment-modal').style.display = 'flex';
+  }
+
+  function closePaymentModal() {
+    document.getElementById('payment-modal').style.display = 'none';
+  }
+
+  function selectPay(element, method) {
+    document.querySelectorAll('.pay-method').forEach(el => el.classList.remove('active'));
+    element.classList.add('active');
+    selectedPaymentMethod = method;
+  }
+
+  function confirmPayment() {
+    closePaymentModal();
+    startSearch();
+  }
+
+  // === RECHERCHE DU CHAUFFEUR ===
   function startSearch() {
     const depart = document.getElementById('depart').value;
     const arrivee = document.getElementById('arrivee').value;
     const prix = document.getElementById('res-total').innerText;
-
+    
     document.getElementById('recap-trajet').innerText = `${depart} ➔ ${arrivee}`;
     document.getElementById('recap-prix').innerText = prix;
-    
-    showTab('recherche', document.querySelector('.bottom-nav button.active')); // Reste sur l'onglet actif mais change l'écran
+
+    showTab('recherche', document.querySelector('.bottom-nav button.active')); 
     document.getElementById('screen-passager').style.display = 'none';
     document.getElementById('screen-recherche').style.display = 'block';
+
+    // Afficher l'IA au bout de 3 secondes
+    setTimeout(() => {
+        document.getElementById('ai-bubble').classList.add('show');
+    }, 3000);
   }
 
   function annulerRecherche() {
+    document.getElementById('ai-bubble').classList.remove('show');
     document.getElementById('screen-recherche').style.display = 'none';
     document.getElementById('screen-passager').style.display = 'block';
+  }
+
+  // === NAVIGATION ===
+  function showTab(tab, btn) {
+    if(btn) {
+      document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    document.querySelectorAll('.screen-content').forEach(s => s.style.display = 'none');
+    document.getElementById('screen-' + tab).style.display = 'block';
+    
+    if(tab === 'passager' && map) {
+        setTimeout(() => map.invalidateSize(), 100);
+    }
   }
 
   // === STATUT CHAUFFEUR ===
@@ -416,7 +622,7 @@
     }
   }
 
-  // === UPLOAD ===
+  // === UPLOAD DOCUMENTS ===
   async function upload(input, name) {
     const file = input.files[0];
     if (!file) return;
@@ -443,16 +649,7 @@
     }
   }
 
-  // === NAVIGATION ===
-  function showTab(tab, btn) {
-    if(btn) {
-      document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
-    document.querySelectorAll('.screen-content').forEach(s => s.style.display = 'none');
-    document.getElementById('screen-' + tab).style.display = 'block';
-  }
-
+  // === LANCEMENT ===
   checkAuth();
   client.auth.onAuthStateChange(() => checkAuth());
 </script>
