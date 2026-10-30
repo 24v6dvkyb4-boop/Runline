@@ -87,8 +87,8 @@
 
   .screen-content { display: none; }
 
-  /* FOOTER */
-  .footer{text-align:left; padding: 30px 20px; border-top: 1px solid #26263a; margin-top: 30px;}
+  /* FOOTER (Uniquement dans Profil) */
+  .footer{text-align:left; padding: 20px 0; border-top: 1px solid #26263a; margin-top: 30px;}
   .footer .menu-title { display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding-bottom:10px; border-bottom:1px solid #1f1f2e; font-size:13px; font-weight:600; color:#fff; letter-spacing:1px;}
   .footer .menu-icon { color:#ffd166; font-size:18px; }
   .footer .menu-content { display:none; padding-top:10px; flex-direction:column; gap:10px; font-size:12px;}
@@ -277,7 +277,7 @@
       </div>
     </div>
 
-    <!-- PROFIL -->
+    <!-- PROFIL (Avec le pied de page ICI uniquement) -->
     <div class="screen-content" id="screen-profil">
       <div class="trip-card">
         <h3>Mon profil</h3>
@@ -285,6 +285,52 @@
         <div class="input-group"><label>Nom complet</label><input placeholder="Votre nom"></div>
         <div class="input-group"><label>Téléphone</label><input placeholder="+33 6 00 00 00 00"></div>
         <button class="btn btn-primary" style="margin-top:10px;">Mettre à jour</button>
+      </div>
+
+      <!-- LE PIED DE PAGE -->
+      <div class="footer">
+        <div style="margin-bottom:20px;">
+          <div class="menu-title" onclick="toggleFooterMenu('menu-runline')">
+            <span>MENU RUNLINE</span>
+            <span id="icon-menu-runline" class="menu-icon">+</span>
+          </div>
+          <div id="menu-runline" class="menu-content">
+            <a href="#">Accueil</a>
+            <a href="#">Devenir chauffeur</a>
+            <a href="#">Tarifs et commissions</a>
+          </div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <div class="menu-title" onclick="toggleFooterMenu('menu-client')">
+            <span>MENU CLIENT</span>
+            <span id="icon-menu-client" class="menu-icon">+</span>
+          </div>
+          <div id="menu-client" class="menu-content">
+            <a href="#">Mon profil</a>
+            <a href="#">Mes courses</a>
+            <a href="#">Contactez-nous</a>
+          </div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <div class="menu-title" onclick="toggleFooterMenu('menu-politiques')">
+            <span>POLITIQUES</span>
+            <span id="icon-menu-politiques" class="menu-icon">+</span>
+          </div>
+          <div id="menu-politiques" class="menu-content">
+            <a href="#" onclick="openModal('mentions')">Mentions légales</a>
+            <a href="#" onclick="openModal('confidentialite')">Politique de confidentialité (RGPD)</a>
+            <a href="#" onclick="openModal('cgv')">Conditions Générales de Vente (CGV)</a>
+            <a href="#" onclick="openModal('cgu')">Conditions Générales d'Utilisation (CGU)</a>
+          </div>
+        </div>
+
+        <div style="text-align:center; margin-top:30px;">
+          <div style="font-size:20px; font-weight:900; letter-spacing:-1px; margin-bottom:10px;">RUN<span style="color:#ffd166;">LINE</span></div>
+          <p style="font-size: 10px; color: #4a4a5e; margin-bottom: 8px;">© 2026 RunLine. Tous droits réservés.</p>
+          <div class="secure-tag" style="font-size:10px; color:#22d3ee;">🔒 Paiement sécurisé · Données chiffrées AES-256</div>
+        </div>
       </div>
     </div>
   </div>
@@ -295,52 +341,6 @@
     <button onclick="showTab('chauffeur', this)"><span>🛡️</span>Chauffeur</button>
     <button onclick="showTab('historique', this)"><span>🧾</span>Courses</button>
     <button onclick="showTab('profil', this)"><span>👤</span>Profil</button>
-  </div>
-
-  <!-- PIED DE PAGE -->
-  <div class="footer" id="main-footer">
-    <div style="margin-bottom:20px;">
-      <div class="menu-title" onclick="toggleFooterMenu('menu-runline')">
-        <span>MENU RUNLINE</span>
-        <span id="icon-menu-runline" class="menu-icon">+</span>
-      </div>
-      <div id="menu-runline" class="menu-content">
-        <a href="#">Accueil</a>
-        <a href="#">Devenir chauffeur</a>
-        <a href="#">Tarifs et commissions</a>
-      </div>
-    </div>
-
-    <div style="margin-bottom:20px;">
-      <div class="menu-title" onclick="toggleFooterMenu('menu-client')">
-        <span>MENU CLIENT</span>
-        <span id="icon-menu-client" class="menu-icon">+</span>
-      </div>
-      <div id="menu-client" class="menu-content">
-        <a href="#">Mon profil</a>
-        <a href="#">Mes courses</a>
-        <a href="#">Contactez-nous</a>
-      </div>
-    </div>
-
-    <div style="margin-bottom:20px;">
-      <div class="menu-title" onclick="toggleFooterMenu('menu-politiques')">
-        <span>POLITIQUES</span>
-        <span id="icon-menu-politiques" class="menu-icon">+</span>
-      </div>
-      <div id="menu-politiques" class="menu-content">
-        <a href="#" onclick="openModal('mentions')">Mentions légales</a>
-        <a href="#" onclick="openModal('confidentialite')">Politique de confidentialité (RGPD)</a>
-        <a href="#" onclick="openModal('cgv')">Conditions Générales de Vente (CGV)</a>
-        <a href="#" onclick="openModal('cgu')">Conditions Générales d'Utilisation (CGU)</a>
-      </div>
-    </div>
-
-    <div style="text-align:center; margin-top:30px;">
-      <div style="font-size:20px; font-weight:900; letter-spacing:-1px; margin-bottom:10px;">RUN<span style="color:#ffd166;">LINE</span></div>
-      <p style="font-size: 10px; color: #4a4a5e; margin-bottom: 8px;">© 2026 RunLine. Tous droits réservés.</p>
-      <div class="secure-tag" style="font-size:10px; color:#22d3ee;">🔒 Paiement sécurisé · Données chiffrées AES-256</div>
-    </div>
   </div>
 
 </div>
@@ -366,13 +366,11 @@
       document.getElementById('auth-screen').style.display = 'none';
       document.getElementById('app-screen').style.display = 'block';
       document.getElementById('bottom-nav').style.display = 'flex';
-      document.getElementById('main-footer').style.display = 'block';
       document.getElementById('user-email').innerText = session.user.email;
     } else {
       document.getElementById('auth-screen').style.display = 'flex';
       document.getElementById('app-screen').style.display = 'none';
       document.getElementById('bottom-nav').style.display = 'none';
-      document.getElementById('main-footer').style.display = 'none';
     }
   }
 
@@ -409,12 +407,11 @@
     checkAuth();
   }
 
-  // === MODE DÉMO ===
+  // === MODE DÉMO (Voir sans compte) ===
   function showDemo() {
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app-screen').style.display = 'block';
     document.getElementById('bottom-nav').style.display = 'flex';
-    document.getElementById('main-footer').style.display = 'block';
     document.getElementById('user-email').innerText = "Mode Démo (Invité)";
   }
 
@@ -517,7 +514,7 @@
     document.getElementById('screen-' + tab).style.display = 'block';
   }
 
-  // === MENU ACCORDÉON FOOTER ===
+  // === MENU ACCORDÉON FOOTER (Dans Profil) ===
   function toggleFooterMenu(id) {
     const menu = document.getElementById(id);
     const icon = document.getElementById('icon-' + id);
