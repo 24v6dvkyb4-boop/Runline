@@ -52,11 +52,6 @@
   .trip-card{background:#16161f;border:1px solid #26263a;border-radius:16px;padding:20px;margin-bottom:15px}
   .trip-card h3{font-size:16px;margin-bottom:15px;color:#fff}
   
-  /* CARTE (Apparaît après calcul) */
-  .map-container { display:none; height:180px; background:repeating-linear-gradient(45deg, #1a1a2e, #1a1a2e 10px, #16161f 10px, #16161f 20px); border-radius:16px; border:1px solid #26263a; margin-top:20px; margin-bottom:15px; position:relative; overflow:hidden; align-items:center; justify-content:center; color:#4a4a5e; font-size:12px; font-weight:600; }
-  .map-container::after { content:'🗺️ Trajet estimé (Carte bientôt disponible)'; position:relative; z-index:1; }
-  .map-container.show { display: flex; }
-
   .result-box{background:rgba(255,209,102,.05);border:1px solid rgba(255,209,102,.2);border-radius:12px;padding:15px;margin-top:15px;display:none}
   .res-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;color:#c4c4d4}
   .res-row.total{font-size:18px;font-weight:800;color:#ffd166;border-top:1px solid #26263a;padding-top:10px;margin-top:10px}
@@ -97,7 +92,7 @@
 
   .screen-content { display: none; }
 
-  /* FOOTER (Profil) */
+  /* FOOTER */
   .footer{text-align:left; padding: 20px 0; border-top: 1px solid #26263a; margin-top: 30px;}
   .footer .menu-title { display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding-bottom:10px; border-bottom:1px solid #1f1f2e; font-size:13px; font-weight:600; color:#fff; letter-spacing:1px;}
   .footer .menu-icon { color:#ffd166; font-size:18px; }
@@ -136,24 +131,18 @@
       <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"> Continuer avec Google
     </button>
     <div class="divider">ou par email</div>
-    
     <div id="login-form">
       <div class="input-group"><label>Email</label><input type="email" id="loginEmail"></div>
       <div class="input-group"><label>Mot de passe</label><input type="password" id="loginPassword"></div>
       <button class="btn btn-primary" onclick="signIn()">Se connecter</button>
       <button class="btn btn-outline" onclick="toggleAuth('signup')">Créer un compte</button>
     </div>
-    
     <div id="signup-form" style="display:none">
       <div class="input-group"><label>Nom</label><input id="signupName"></div>
       <div class="input-group"><label>Email</label><input type="email" id="signupEmail"></div>
       <div class="input-group"><label>Mot de passe</label><input type="password" id="signupPassword"></div>
       <button class="btn btn-primary" onclick="signUp()">Créer mon compte</button>
       <button class="btn btn-outline" onclick="toggleAuth('login')">J'ai déjà un compte</button>
-    </div>
-    
-    <div style="text-align:center; margin-top:20px;">
-      <a href="#" onclick="showDemo()" style="color:#8b8b9e; font-size:12px; text-decoration:none;">👀 Voir la maquette (sans compte)</a>
     </div>
   </div>
 
@@ -176,22 +165,21 @@
 
       <div class="trip-card">
         <h3>Où allez-vous ?</h3>
+        
+        <!-- BOUTONS FAVORIS -->
         <div class="fav-row">
           <div class="fav-btn" onclick="setFav('Tour Eiffel', 'Maison')">🏠 Maison</div>
           <div class="fav-btn" onclick="setFav('La Défense', 'Travail')">💼 Travail</div>
         </div>
+
         <div class="input-group"><label>Départ</label><input id="depart" value="Tour Eiffel"></div>
         <div class="input-group"><label>Arrivée</label><input id="arrivee" value="Gare du Nord"></div>
-        
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <div class="input-group"><label>Distance (km)</label><input id="km" type="number" value="5"></div>
           <div class="input-group"><label>Durée (min)</label><input id="min" type="number" value="15"></div>
         </div>
         <button class="btn btn-primary" style="margin-top:10px" onclick="calcPrice()">Estimer le prix</button>
         
-        <!-- CARTE (Apparaît après estimation) -->
-        <div class="map-container" id="map-container"></div>
-
         <div class="result-box" id="result-box">
           <div class="res-row"><span>Prise en charge</span><b>1,50€</b></div>
           <div class="res-row"><span id="lbl-km">Distance</span><b id="res-km">0,00€</b></div>
@@ -217,6 +205,7 @@
         <div class="searching-anim"></div>
         <h2 style="font-size:20px; margin-bottom:10px;">Recherche d'un chauffeur...</h2>
         <p style="color:#8b8b9e; font-size:14px; margin-bottom:30px;">Veuillez patienter quelques instants.</p>
+        
         <div class="trip-card" style="text-align:left;">
           <p style="font-size:14px; color:#fff; margin-bottom:5px;">Votre trajet :</p>
           <p id="recap-trajet" style="font-size:13px; color:#8b8b9e; margin-bottom:15px;"></p>
@@ -444,7 +433,7 @@
     calcPrice();
   }
 
-  // === CALCUL DU PRIX + AFFICHAGE CARTE ===
+  // === CALCUL DU PRIX ===
   function calcPrice() {
     const km = parseFloat(document.getElementById('km').value) || 0;
     const min = parseFloat(document.getElementById('min').value) || 0;
@@ -464,9 +453,6 @@
     
     document.getElementById('result-box').style.display = 'block';
     document.getElementById('btn-commander').style.display = 'block';
-    
-    // Affichage de la carte après le calcul
-    document.getElementById('map-container').classList.add('show');
   }
 
   // === RECHERCHE CHAUFFEUR ===
