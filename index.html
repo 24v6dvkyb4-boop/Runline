@@ -8,8 +8,13 @@
 <style>
   *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Segoe UI',sans-serif}
   body{background:#0a0a0f;color:#fff;min-height:100vh;display:flex;justify-content:center}
-  .container{width:100%;max-width:420px;padding:20px;position:relative;padding-bottom:100px}
+  .container{width:100%;max-width:420px;padding:20px;position:relative;padding-bottom:100px; margin-top: 30px;}
   
+  /* BARRE DÉFILANTE */
+  .ticker-wrap { position: fixed; top: 0; left: 0; width: 100%; background: linear-gradient(90deg, #ffd166, #ff9f1c); color: #1a1a2e; padding: 8px 0; overflow: hidden; white-space: nowrap; font-size: 11px; font-weight: 700; z-index: 9999; }
+  .ticker { display: inline-block; animation: defilement 20s linear infinite; }
+  @keyframes defilement { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
   /* CONNEXION */
   #auth-screen{display:flex;flex-direction:column;justify-content:center;min-height:90vh}
   .logo-big{font-size:38px;font-weight:900;text-align:center;margin-bottom:10px;letter-spacing:-1.5px}
@@ -47,6 +52,16 @@
   .trip-card{background:#16161f;border:1px solid #26263a;border-radius:16px;padding:20px;margin-bottom:15px}
   .trip-card h3{font-size:16px;margin-bottom:15px;color:#fff}
   
+  /* CARTE (MAP) */
+  .map-box{height:180px;background:repeating-linear-gradient(45deg, #1a1a2e, #1a1a2e 10px, #16161f 10px, #16161f 20px);border-radius:16px;border:1px solid #26263a;margin-bottom:15px;display:flex;align-items:center;justify-content:center;color:#4a4a5e;font-size:12px;font-weight:600;position:relative;overflow:hidden}
+  .map-box::after{content:'🗺️ Carte interactive (bientôt disponible)'; position:relative; z-index:1;}
+
+  /* CALENDRIER */
+  .calendar-row{display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;margin-bottom:15px}
+  .day-btn{background:#16161f;border:1px solid #26263a;border-radius:10px;padding:10px 0;text-align:center;cursor:pointer;font-size:11px;color:#8b8b9e;transition:.2s}
+  .day-btn.active{background:rgba(255,209,102,.1);border-color:#ffd166;color:#ffd166;font-weight:700}
+  .day-btn span{display:block;font-size:16px;color:#fff;margin-bottom:2px}
+
   .result-box{background:rgba(255,209,102,.05);border:1px solid rgba(255,209,102,.2);border-radius:12px;padding:15px;margin-top:15px;display:none}
   .res-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;color:#c4c4d4}
   .res-row.total{font-size:18px;font-weight:800;color:#ffd166;border-top:1px solid #26263a;padding-top:10px;margin-top:10px}
@@ -109,6 +124,13 @@
 </head>
 <body>
 
+<!-- BARRE DÉFILANTE -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    🚀 RunLine : Le transport le moins cher de France — 1€ de commission seulement ! &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; 💶 Abonnement Chauffeur : 4,99€/semaine. Inscrivez-vous ! &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; 🔒 Paiement 100% sécurisé.
+  </div>
+</div>
+
 <div class="container">
 
   <!-- CONNEXION -->
@@ -157,6 +179,9 @@
         <div class="big">1€<small> /course</small></div>
       </div>
 
+      <!-- CARTE -->
+      <div class="map-box"></div>
+
       <div class="trip-card">
         <h3>Où allez-vous ?</h3>
         <div class="fav-row">
@@ -165,6 +190,18 @@
         </div>
         <div class="input-group"><label>Départ</label><input id="depart" value="Tour Eiffel"></div>
         <div class="input-group"><label>Arrivée</label><input id="arrivee" value="Gare du Nord"></div>
+        
+        <!-- CALENDRIER -->
+        <div class="input-group" style="padding:12px;">
+          <label style="margin-bottom:10px; display:block;">Quand ?</label>
+          <div class="calendar-row">
+            <div class="day-btn active"><span>Auj.</span>30</div>
+            <div class="day-btn"><span>Dem.</span>31</div>
+            <div class="day-btn"><span>Ven.</span>01</div>
+            <div class="day-btn"><span>Sam.</span>02</div>
+          </div>
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <div class="input-group"><label>Distance (km)</label><input id="km" type="number" value="5"></div>
           <div class="input-group"><label>Durée (min)</label><input id="min" type="number" value="15"></div>
@@ -514,7 +551,7 @@
     document.getElementById('screen-' + tab).style.display = 'block';
   }
 
-  // === MENU ACCORDÉON FOOTER (Dans Profil) ===
+  // === MENU ACCORDÉON FOOTER ===
   function toggleFooterMenu(id) {
     const menu = document.getElementById(id);
     const icon = document.getElementById('icon-' + id);
