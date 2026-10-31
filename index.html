@@ -500,22 +500,28 @@ async function fetchAutocomplete(query, listId) {
   const list = document.getElementById(listId);
   if (!list) return;
   if (query.length < 3) { list.classList.remove('show'); list.innerHTML = ''; return; }
+  
   try {
-    // Utilisation de l'API de l'IGN (Géoplateforme) pour chercher Adresses + POI (commerces, lieux-dits)
-    const url = `https://data.geopf.fr/geocodage/completion/?text=${encodeURIComponent(query)}&type=StreetAddress,PositionOfInterest&maximumResponses=8`;
-    
-    const res = await fetch(url);
+    // On utilise Photon (OpenStreetMap) qui gère AUSSI les commerces et lieux-dits
+    // Le "lat" et "lon" servent à dire "cherche en priorité autour de la France"
+    const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=fr&limit=6&lat=46.603354&lon=1.888334`);
     const data = await res.json();
     list.innerHTML = '';
     
-    // L'API IGN renvoie les résultats dans un tableau "results"
-    if (!data.results || !data.results.length) { list.classList.remove('show'); return; }
+    if (!data.features || !data.features.length) { list.classList.remove('show'); return; }
     
-    data.results.forEach(f => {
-      const label = f.fullText; // Le texte complet (ex: "DECATHLON, Marseille")
+    data.features.forEach(f => {
+      const p = f.properties;
+      
+      // On fabrique une super adresse complète (ex: "Decathlon, Marseille" ou "10 Rue de la Paix, Paris")
+      let label = p.name || '';
+      if (p.street && p.street !== p.name) label += (label ? ', ' : '') + p.street;
+      if (p.city) label += (label ? ', ' : '') + p.city;
+      
       const div = document.createElement('div');
       div.className = 'autocomplete-item';
       div.textContent = label;
+      
       div.onclick = () => {
         const inputId = listId === 'depart-list' ? 'depart' : 'arrivee';
         document.getElementById(inputId).value = label;
@@ -525,7 +531,10 @@ async function fetchAutocomplete(query, listId) {
       list.appendChild(div);
     });
     list.classList.add('show');
-  } catch (e) { console.error(e); }
+  } catch (e) { 
+    console.error(e); 
+    list.classList.remove('show'); 
+  }
 }
 document.addEventListener('click', (e) => {
   document.querySelectorAll('.autocomplete-list').forEach(l => {
