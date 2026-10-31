@@ -502,8 +502,6 @@ async function fetchAutocomplete(query, listId) {
   if (query.length < 3) { list.classList.remove('show'); list.innerHTML = ''; return; }
   
   try {
-    // On utilise Photon (OpenStreetMap) qui gère AUSSI les commerces et lieux-dits
-    // Le "lat" et "lon" servent à dire "cherche en priorité autour de la France"
     const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=fr&limit=6&lat=46.603354&lon=1.888334`);
     const data = await res.json();
     list.innerHTML = '';
@@ -512,8 +510,6 @@ async function fetchAutocomplete(query, listId) {
     
     data.features.forEach(f => {
       const p = f.properties;
-      
-      // On fabrique une super adresse complète (ex: "Decathlon, Marseille" ou "10 Rue de la Paix, Paris")
       let label = p.name || '';
       if (p.street && p.street !== p.name) label += (label ? ', ' : '') + p.street;
       if (p.city) label += (label ? ', ' : '') + p.city;
@@ -525,6 +521,14 @@ async function fetchAutocomplete(query, listId) {
       div.onclick = () => {
         const inputId = listId === 'depart-list' ? 'depart' : 'arrivee';
         document.getElementById(inputId).value = label;
+        
+        // MAGIE ICI : On enregistre les coordonnées exactes (lon, lat) selon le champ
+        if (inputId === 'depart') {
+          departCoords = [f.geometry.coordinates[1], f.geometry.coordinates[0]]; // [lat, lon]
+        } else {
+          arriveeCoords = [f.geometry.coordinates[1], f.geometry.coordinates[0]]; // [lat, lon]
+        }
+        
         list.classList.remove('show');
         list.innerHTML = '';
       };
