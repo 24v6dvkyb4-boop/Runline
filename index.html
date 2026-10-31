@@ -375,7 +375,7 @@
         <button class="btn btn-outline" style="margin-top:20px;" onclick="annulerRecherche()">Annuler la course</button>
       </div>
     </div>
-  </div>
+
 
   <!-- MODALS -->
   <div class="payment-overlay" id="payment-modal">
@@ -495,10 +495,6 @@ let arriveeCoords = null;
 /* ============ AUTOCOMPLETE ============ */
 let autoTimers = {};
 function debounceAutocomplete(input, listId) {
-  // Si l'utilisateur tape une nouvelle lettre, on efface les anciennes coordonnées GPS
-  if (listId === 'depart-list') departCoords = null;
-  if (listId === 'arrivee-list') arriveeCoords = null;
-  
   clearTimeout(autoTimers[listId]);
   autoTimers[listId] = setTimeout(() => fetchAutocomplete(input.value, listId), 350);
 }
@@ -575,6 +571,7 @@ async function checkAuth() {
       document.getElementById('auth-screen').style.display = 'none';
       document.getElementById('app-screen').style.display = 'block';
       document.getElementById('bottom-nav').style.display = 'flex';
+      document.getElementById('main-footer').style.display = 'block';
       document.getElementById('user-email').innerText = session.user.email;
       document.getElementById('profil-name').value = session.user.user_metadata?.full_name || '';
       document.getElementById('profil-phone').value = session.user.user_metadata?.phone || '';
@@ -589,6 +586,7 @@ async function checkAuth() {
       document.getElementById('auth-screen').style.display = 'flex';
       document.getElementById('app-screen').style.display = 'none';
       document.getElementById('bottom-nav').style.display = 'none';
+      document.getElementById('main-footer').style.display = 'none';
     }
   } catch (e) { console.error('checkAuth', e); }
 }
