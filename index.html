@@ -489,6 +489,8 @@ let map, routingLayer, departMarker, arriveeMarker;
 let selectedPaymentMethod = 'cb', selectedRole = 'passager';
 let currentDate = new Date(), selectedDate = null, selectedTime = "Maintenant", isCalendarOpen = false;
 let searchInterval, countdownInterval, currentUser = null, lastTripData = null;
+let departCoords = null;
+let arriveeCoords = null;
 
 /* ============ AUTOCOMPLETE ============ */
 let autoTimers = {};
@@ -688,19 +690,36 @@ async function calcRoute() {
   const arrivee = document.getElementById('arrivee').value;
   const btn = document.getElementById('btn-calc');
   const typeVehicule = document.getElementById('type-vehicule').value;
+  
   if (!depart || !arrivee) return;
   btn.innerHTML = 'Estimation... <div class="spinner"></div>'; btn.disabled = true;
+
   try {
-    const geoDepart = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(depart)}`).then(r => r.json());
-    const geoArrivee = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(arrivee)}`).then(r => r.json());
-    if (!geoDepart.length || !geoArrivee.length) throw new Error("Adresse introuvable");
-    const lat1 = geoDepart[0].lat, lon1 = geoDepart[0].lon, lat2 = geoArrivee[0].lat, lon2 = geoArrivee[0].lon;
+    let lat1, lon1, lat2, lon2;
+
+    // On utilise les coordonnées GPS si l'utilisateur a cliqué sur la liste
+    if (departCoords && arriveeCoords) {
+      lat1 = departCoords[0]; lon1 = departCoords[1];
+      lat2 = arriveeCoords[0]; lon2 = arriveeCoords[1];
+    } else {
+      // Sinon on cherche via Photon
+      const geoDepart = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(depart)}&lang=fr&limit=1`).then(r => r.json());
+      const geoArrivee = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(arrivee)}&lang=fr&limit=1`).then(r => r.json());
+      
+      if (!geoDepart.features.length || !geoArrivee.features.length) throw new Error("Sélectionnez les adresses dans la liste");
+      
+      lat1 = geoDepart.features[0].geometry.coordinates[1]; lon1 = geoDepart.features[0].geometry.coordinates[0];
+      lat2 = geoArrivee.features[0].geometry.coordinates[1]; lon2 = geoArrivee.features[0].geometry.coordinates[0];
+    }
+
     const route = await fetch(`https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=full&geometries=geojson`).then(r => r.json());
     if (route.code !== 'Ok') throw new Error("Erreur de trajet");
+    
     const distanceKm = route.routes[0].distance / 1000, dureeMin = route.routes[0].duration / 60;
     const multiplier = typeVehicule === 'van' ? 1.5 : 1.0;
     const total = (1.50 * multiplier) + (distanceKm * (1.00 * multiplier)) + (dureeMin * (0.15 * multiplier));
     const chauffeur = total - 1.00;
+    
     document.getElementById('res-km').innerText = distanceKm.toFixed(1) + " km";
     document.getElementById('res-min').innerText = Math.round(dureeMin) + " min";
     document.getElementById('res-total').innerText = total.toFixed(2).replace('.', ',') + '€';
@@ -708,18 +727,22 @@ async function calcRoute() {
     document.getElementById('result-box').style.display = 'block';
     document.getElementById('btn-commander').style.display = 'block';
     document.getElementById('map-container').style.display = 'block';
+    
     if (!map) initMap();
     setTimeout(() => map && map.invalidateSize(), 100);
     if (routingLayer) map.removeLayer(routingLayer);
     if (departMarker) map.removeLayer(departMarker);
     if (arriveeMarker) map.removeLayer(arriveeMarker);
+    
     departMarker = L.marker([lat1, lon1], { icon: L.divIcon({ className: 'custom-pin pin-depart', html: 'D', iconSize: [30,30], iconAnchor: [15,15] }) }).addTo(map);
     arriveeMarker = L.marker([lat2, lon2], { icon: L.divIcon({ className: 'custom-pin pin-arrivee', html: 'A', iconSize: [30,30], iconAnchor: [15,15] }) }).addTo(map);
     routingLayer = L.geoJSON(route.routes[0].geometry, { style: { color: '#ffd166', weight: 6, opacity: 1 } }).addTo(map);
     map.fitBounds(routingLayer.getBounds(), { padding: [30,30], maxZoom: 12 });
+    
     lastTripData = { depart, arrivee, distanceKm, dureeMin, total, chauffeur };
   } catch (error) {
     console.error(error);
+    alert("⚠️ " + error.message);
     document.getElementById('result-box').style.display = 'none';
     document.getElementById('btn-commander').style.display = 'none';
     document.getElementById('map-container').style.display = 'none';
